@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <svg></svg>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js" integrity="sha256-j2LsvgOlQFIb2Mphb+tX7d5pNmFdpsJU+s5GNo3z63g=" crossorigin="anonymous"></script>
+    <script>
+        var width = 800;
+        var height = 600;
+
+        var projection = d3.geoMercator()
+            .scale(60000)
+            // Center the Map in Colombia
+            .center([4.416164, 51.219785])
+            .translate([width / 2, height / 2]);
+
+        var path = d3.geoPath()
+            .projection(projection);
+
+        // Set svg width & height
+        var svg = d3.select('svg')
+            .attr('width', width)
+            .attr('height', height);
+
+        // Add background
+        svg.append('rect')
+            .attr('class', 'background')
+            .attr('width', width)
+            .attr('height', height)
+            .on('mouseover', mouseover)
+            .on('mouseout', mouseout)
+            .on('click', clicked);
+
+        var g = svg.append('g');
+
+        var effectLayer = g.append('g')
+            .classed('effect-layer', true);
+
+        var mapLayer = g.append('g')
+            .classed('map-layer', true);
+
+        var pathLayer = g.append('g')
+            .classed('path-layer', true);
+
+        function filterWork(d){
+            //return d.properties.DIFF_TIME > 60;
+            //return d.properties.REAL_SPEED > 15;
+            return d.properties.STARTTIMEDATE.getDay() > 0 && d.properties.STARTTIMEDATE.getDay() < 6;
+            return d.properties.STARTTIMEDATE.getHours() > 7 && d.properties.STARTTIMEDATE.getHours() < 10;
+        }
+
+
+        d3.json("fiets_routes_CC.geojson", 
+            function(data){
+                data.features.forEach(element => {
+                    //console.log(element)
+                    element.properties.STARTTIMEDATE = new Date(element.properties.STARTTIME);
+                    element.properties.STOPTIMEDATE = new Date(element.properties.STOPTIME);
+                });
+                console.log(data);
+                var features = data.features;
+                pathLayer.selectAll('path')
+                    .data(features)
+                    .enter()
+                        .append('path').attr('d', path).attr('vector-effect', 'non-scaling-stroke').style('stroke','yellow').style("opacity", "0")
+                    .filter(filterWork)
+                    .style('stroke','red').style("opacity", "0.05");
+        });
+
+        function mouseover(){
+            pathLayer.selectAll('path').style("opacity", "0.05")
+                    .filter(filterWork)
+                    .style('stroke','red').style("opacity", "0.00");
+        }
+
+        function mouseout() {
+            pathLayer.selectAll('path').style("opacity", "0.00")
+                    .filter(filterWork)
+                    .style('stroke','red').style("opacity", "0.05");
+        }
+
+        function clicked(){
+            console.log("clicked");
+            pathLayer.selectAll('path')
+                .style('stroke', 'green');
+        }
+    </script>
+</body>
+</html>
