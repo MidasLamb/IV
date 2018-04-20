@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>IV: Project</title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="DC.title" content="Dataset: gis/zone30 map | The Datatank"/>
+        <base target="_parent" />
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script type="text/javascript" src='http://datasets.antwerpen.be/v4/public/js/leaflet.min.js'></script>
+        <link rel="stylesheet" href="http://datasets.antwerpen.be/v4/public/css/leaflet.css?v=1.0" />
+        <style>
+            body { margin:0; padding:0; }
+            #map { position:absolute; top:0; bottom:0; width:100%; }
+            .fiets-route {
+                opacity: 0.01;
+                stroke: red;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <div id='map'></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js" integrity="sha256-j2LsvgOlQFIb2Mphb+tX7d5pNmFdpsJU+s5GNo3z63g=" crossorigin="anonymous"></script>
+    <script src="heatmap/leafheat.js"></script>
+        <script>
+            var map = L.map('map').setView([51.260197, 4.402771], 10);
+
+            // L.tileLayer(
+            //         "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            //         {
+            //             maxZoom: 19
+            //         }
+            // ).addTo(map);
+
+            // var Wikimedia = L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', {
+            //     attribution: '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>',
+            //     minZoom: 1,
+            //     maxZoom: 18
+            // });
+
+            var CartoDB_Positron = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+                subdomains: 'abcd',
+                maxZoom: 19
+            });
+
+            var OpenStreetMap_BlackAndWhite = L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            });
+
+            CartoDB_Positron.addTo(map);
+
+            L.tileLayer(
+                    "http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}",
+                    {
+                        maxZoom: 19,
+                        bounds: [
+                            //= the size of Antwerp
+                            [51.150,4.225],
+                            [51.400,4.500]
+                        ]
+                    }
+            ).addTo(map);
+
+
+            // var data = omnivore.kml('http://datasets.antwerpen.be/v4/public/gis/zone30.kml')
+            //     .on('ready', function() {
+            //         map.fitBounds(data.getBounds(), {padding: [20, 20]});
+
+            //         data.eachLayer(function(layer) {
+            //             var popup = "<strong>" + layer.feature.properties.name + "</strong>\n";
+            //             var description = layer.feature.properties.description;
+
+            //             if (description) {
+            //                 popup += description;
+            //             }
+
+            //             layer.bindPopup(popup);
+            //         });
+            //     })
+            //     .addTo(map);
+
+            // var data = omnivore.kml('http://datasets.antwerpen.be/v4/public/gis/cyclingchallenge.kml')
+            //     .on('ready', function() {
+            //         map.fitBounds(data.getBounds(), {padding: [20, 20]});
+
+            //         data.eachLayer(function(layer) {
+            //             var popup = "<strong>" + layer.feature.properties.name + "</strong>\n";
+            //             var description = layer.feature.properties.description;
+
+            //             if (description) {
+            //                 popup += description;
+            //             }
+
+            //             layer.bindPopup(popup);
+            //         });
+            //     })
+            //     .addTo(map);
+
+            function onEachFeature(feature, layer) {
+                layer.bindPopup("Start time:" + feature.properties.STARTTIMEDATE + "<br>" + 
+                                "Stop time:" + feature.properties.STOPTIMEDATE + "<br>");
+            }
+
+            var svg = d3.select("body").append("svg").attr("display", "none");
+
+            function geoJsonStart2heat(geojson, intensity) {
+                return geojson.features.map(function(feature) {
+                    return [
+                    feature.geometry.coordinates[0][1],
+                    feature.geometry.coordinates[0][0],
+                    feature.properties[intensity]
+                    ];
+                });
+            }
+
+            var heatMap = L.heatLayer();
+            
+            d3.json("fiets_routes_CC.geojson", 
+                function(data){
+                    var mystyle = {
+                        "className": "fiets-route"
+                    }
+
+                    data.features.forEach(element => {
+                        element.properties.STARTTIMEDATE = new Date(element.properties.STARTTIME);
+                        element.properties.STOPTIMEDATE = new Date(element.properties.STOPTIME);
+                        element.properties.leafletPath = L.geoJson(element, { style: mystyle, onEachFeature: onEachFeature});
+                        element.geometry.coordinates.map((c) => { //Mutating map
+                            var or = c[0];
+                            c[0] =  c[1]; 
+                            c[1] = or;
+                        });
+                        heatMap.addRoute(element.geometry.coordinates);
+                        // for (var i = 0; i < element.geometry.coordinates.length - 1; i++){
+                        //     curc = element.geometry.coordinates[i];
+                        //     nextc = element.geometry.coordinates[i + 1];  
+                        //     latdir = nextc[1] - curc[1];
+                        //     longdir =  nextc[0] - curc[0];
+                        //     stepsize = 0.00005;
+                        //     maxj = Math.sqrt(longdir*longdir + latdir*latdir) / stepsize;
+                        //     longstep = longdir / maxj;
+                        //     latstep =latdir / maxj;
+                        //     for (var j = 0; j < maxj; j++){
+                        //         heatMap.addLatLng([curc[1] + j*latstep, curc[0] + j*longstep, 0.005]);
+                        //     }
+                        // }
+                    });
+
+
+                    heatMap.addTo(map);
+
+                    // console.log(data);
+                    var features = data.features;
+                    svg.selectAll('path')
+                        .data(features)
+                        .enter()
+                            .append("path")
+                            .each((f) => {
+                                f.properties.leafletPath.addTo(map);
+                            })
+            });
+
+
+            function filterRoutesIndividually(filter, filteredaction){
+                svg.selectAll('path').filter(filter).each(filteredaction);
+            }
+
+            function filterRoutesBatch(filter, filterdaction){
+                svg.selectAll('path').filter(filter).call(filterdaction);
+            }
+
+            function testFilter(){
+                filterRoutesBatch(filterWork, (d) => {
+                    var routes = [];
+                    d.each((e) => {
+                        routes.push(e.geometry.coordinates);
+                        e.properties.leafletPath.removeFrom(map);
+                    })
+                    heatMap.removeRoutes(routes);
+                });
+            }
+
+            function noFilter(){
+                filterRoutesBatch(filterWork, (d) => {
+                    var routes = [];
+                    d.each((e) => {
+                        routes.push(e.geometry.coordinates);
+                        e.properties.leafletPath.addTo(map);
+                    })
+                    heatMap.addRoutes(routes);
+                });
+            }
+
+            
+            function filterWork(d){
+                //return d.properties.DIFF_TIME > 60;
+                //return d.properties.REAL_SPEED > 15;
+                return d.properties.STARTTIMEDATE.getHours() >= 7 && d.properties.STARTTIMEDATE.getHours() <= 9; 
+
+            }
+        </script>
+    </body>
+</html>
