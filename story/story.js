@@ -22,13 +22,12 @@ function story(){
             break;
         case 2:
             storyStepInProgress = true;
-            noFilter();
             storyFilter2();
             storyStepInProgress = false;
             break;
         case 3:
             storyStepInProgress = true;
-            noFilter();
+            Filter.noFilter();
             CartoDB_Positron.removeFrom(map);
             OpenStreetMap_BlackAndWhite.addTo(map);
             storyStepInProgress = false;
@@ -40,27 +39,15 @@ function story(){
 
 function storyFilter1(){
     // Everything but the early routes
-    filterRoutesBatch((d)=>{
-            return !(d.properties.STARTTIMEDATE.getHours() >= 7 && d.properties.STARTTIMEDATE.getHours() <= 9); 
-        }, (d) => {
-        var routes = [];
-        d.each((e) => {
-            routes.push(e.geometry.coordinates);
-        })
-        heatMap.removeRoutes(routes);
+    Filter.filterAccepted((d)=>{
+            return (d.properties.STARTTIMEDATE.getHours() >= 7 && d.properties.STARTTIMEDATE.getHours() <= 9); 
     });
 }
 
 function storyFilter2(){
     // Only the early routes
-    filterRoutesBatch((d)=>{
-            return (d.properties.STARTTIMEDATE.getHours() >= 7 && d.properties.STARTTIMEDATE.getHours() <= 9); 
-        }, (d) => {
-        var routes = [];
-        d.each((e) => {
-            routes.push(e.geometry.coordinates);
-        })
-        heatMap.removeRoutes(routes);
+    Filter.filterAccepted((d)=>{
+            return !(d.properties.STARTTIMEDATE.getHours() >= 7 && d.properties.STARTTIMEDATE.getHours() <= 9); 
     });
 }
 

@@ -112,20 +112,11 @@
             function onEachFeature(feature, layer) {
                 layer.bindPopup("Start time:" + feature.properties.STARTTIMEDATE + "<br>" + 
                                 "Stop time:" + feature.properties.STOPTIMEDATE + "<br>" +
-                                "Start coord(lat, lng): [" + feature.geometry.coordinates[0][1] + "," + feature.geometry.coordinates[0][0] + "]");
+                                "Start coord(lat, lng): [" + feature.geometry.coordinates[0][1] + "," + feature.geometry.coordinates[0][0] + "]" + "<br>" +
+                                "<button onclick='Filter.filterSingleRoute(&quot;"+feature.properties.TripID+"&quot;)'>Show only this route</button>");
             }
 
             var svg = d3.select("body").append("svg").attr("display", "none");
-
-            function geoJsonStart2heat(geojson, intensity) {
-                return geojson.features.map(function(feature) {
-                    return [
-                    feature.geometry.coordinates[0][1],
-                    feature.geometry.coordinates[0][0],
-                    feature.properties[intensity]
-                    ];
-                });
-            }
 
             var heatMap = L.heatLayer();
             
@@ -136,6 +127,7 @@
                     }
 
                     data.features.forEach(element => {
+                        // console.log(element);
                         element.properties.STARTTIMEDATE = new Date(element.properties.STARTTIME);
                         element.properties.STOPTIMEDATE = new Date(element.properties.STOPTIME);
                         element.properties.leafletPath = L.geoJson(element, { style: mystyle, onEachFeature: onEachFeature}); // geoJson works with lng lat, instead of other war around.
@@ -161,44 +153,6 @@
                             })
             });
 
-
-            function filterRoutesIndividually(filter, filteredaction){
-                svg.selectAll('path').filter(filter).each(filteredaction);
-            }
-
-            function filterRoutesBatch(filter, filterdaction){
-                svg.selectAll('path').filter(filter).call(filterdaction);
-            }
-
-            function testFilter(){
-                filterRoutesBatch(filterWork, (d) => {
-                    var routes = [];
-                    d.each((e) => {
-                        routes.push(e.geometry.coordinates);
-                        e.properties.leafletPath.removeFrom(map);
-                    })
-                    heatMap.removeRoutes(routes);
-                });
-            }
-
-            function noFilter(){
-                filterRoutesBatch(() => { return true }, (d) => {
-                    var routes = [];
-                    d.each((e) => {
-                        routes.push(e.geometry.coordinates);
-                        //e.properties.leafletPath.addTo(map);
-                    })
-                    heatMap.setRoutes(routes);
-                });
-            }
-
-            
-            function filterWork(d){
-                //return d.properties.DIFF_TIME > 60;
-                //return d.properties.REAL_SPEED > 15;
-                return !(d.properties.STARTTIMEDATE.getHours() >= 7 && d.properties.STARTTIMEDATE.getHours() <= 9); 
-
-            }
         </script>
 
         <script>
@@ -217,25 +171,27 @@
             }
             
         </script>
-        <div id="heatmap-controls" style="position: absolute; top: 0px; right: 0px; z-index: 100">
-            <h2>Heatmap Controls</h2>
-            <div>
-                <input type="checkbox" checked onchange="toggleHeatmap(this)"> Heatmap on
-            </div>
-            <div>
-                <h3>Line Width</h3>
-                1 <input type="range" min="1" max="30" value="3" onchange="optionsChange(this, 'lineWidth')"> 30 <span class="currentvalue"></span> 
-            </div>
-            <div>
-                <h3>Blur Radius</h3>
-                0 <input type="range" min="0" max="30" value="0" onchange="optionsChange(this, 'blurSize')"> 30 <span class="currentvalue"></span> 
-            </div>
-            <div>
-                <h3>Global Alpha</h3>
-                0 <input type="range" min="0" max="1" value="0.03" step="0.005" onchange="optionsChange(this, 'globalAlpha')" > 1 <span class="currentvalue"></span> 
-            </div>
-            <div>
-                <button onclick="heatMap.resetDefaultOptions()">Reset default</button>
+        <div id="controls" style="position: absolute; top:0px; bottom: 0px; left: 0px; right: 0px; z-index: 200; pointer-events:none;">
+            <div id="heatmap-controls" style="position: absolute; top: 0px; right: 0px; z-index: 100; pointer-events: all;">
+                <h2>Heatmap Controls</h2>
+                <div>
+                    <input type="checkbox" checked onchange="toggleHeatmap(this)"> Heatmap on
+                </div>
+                <div>
+                    <h3>Line Width</h3>
+                    1 <input type="range" min="1" max="30" value="3" onchange="optionsChange(this, 'lineWidth')"> 30 <span class="currentvalue"></span> 
+                </div>
+                <div>
+                    <h3>Blur Radius</h3>
+                    0 <input type="range" min="0" max="30" value="0" onchange="optionsChange(this, 'blurSize')"> 30 <span class="currentvalue"></span> 
+                </div>
+                <div>
+                    <h3>Global Alpha</h3>
+                    0 <input type="range" min="0" max="1" value="0.03" step="0.005" onchange="optionsChange(this, 'globalAlpha')" > 1 <span class="currentvalue"></span> 
+                </div>
+                <div>
+                    <button onclick="heatMap.resetDefaultOptions()">Reset default</button>
+                </div>
             </div>
         </div>
         <script>
