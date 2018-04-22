@@ -11,12 +11,18 @@
         <script type="text/javascript" src='http://datasets.antwerpen.be/v4/public/js/leaflet.min.js'></script>
         <link rel="stylesheet" href="http://datasets.antwerpen.be/v4/public/css/leaflet.css?v=1.0" />
         <style>
-            body { margin:0; padding:0; }
+            body { margin:0; padding:0; font-family: sans-serif}
             #map { position:absolute; top:0; bottom:0; width:100%; }
             .fiets-route {
-                opacity: 0.01;
+                opacity: 0.0;
                 stroke: red;
                 cursor: pointer;
+            }
+            #heatmap-controls{
+                background: white;
+                padding: 10px;
+                border-radius: 5;
+                box-shadow: 1px 1px 5px black;
             }
         </style>
     </head>
@@ -25,6 +31,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js" integrity="sha256-j2LsvgOlQFIb2Mphb+tX7d5pNmFdpsJU+s5GNo3z63g=" crossorigin="anonymous"></script>
     <script src="heatmap/leafheat.js"></script>
+    <script src="story/story.js"></script>
+    <script src="filters.js"></script>
         <script>
             var map = L.map('map').setView([51.260197, 4.402771], 10);
 
@@ -103,7 +111,8 @@
 
             function onEachFeature(feature, layer) {
                 layer.bindPopup("Start time:" + feature.properties.STARTTIMEDATE + "<br>" + 
-                                "Stop time:" + feature.properties.STOPTIMEDATE + "<br>");
+                                "Stop time:" + feature.properties.STOPTIMEDATE + "<br>" +
+                                "Start coord(lat, lng): [" + feature.geometry.coordinates[0][1] + "," + feature.geometry.coordinates[0][0] + "]");
             }
 
             var svg = d3.select("body").append("svg").attr("display", "none");
@@ -129,26 +138,13 @@
                     data.features.forEach(element => {
                         element.properties.STARTTIMEDATE = new Date(element.properties.STARTTIME);
                         element.properties.STOPTIMEDATE = new Date(element.properties.STOPTIME);
-                        element.properties.leafletPath = L.geoJson(element, { style: mystyle, onEachFeature: onEachFeature});
-                        element.geometry.coordinates.map((c) => { //Mutating map
+                        element.properties.leafletPath = L.geoJson(element, { style: mystyle, onEachFeature: onEachFeature}); // geoJson works with lng lat, instead of other war around.
+                        element.geometry.coordinates.map((c) => { //Mutating map because we want lat, lng; not lng, lat
                             var or = c[0];
                             c[0] =  c[1]; 
                             c[1] = or;
                         });
                         heatMap.addRoute(element.geometry.coordinates);
-                        // for (var i = 0; i < element.geometry.coordinates.length - 1; i++){
-                        //     curc = element.geometry.coordinates[i];
-                        //     nextc = element.geometry.coordinates[i + 1];  
-                        //     latdir = nextc[1] - curc[1];
-                        //     longdir =  nextc[0] - curc[0];
-                        //     stepsize = 0.00005;
-                        //     maxj = Math.sqrt(longdir*longdir + latdir*latdir) / stepsize;
-                        //     longstep = longdir / maxj;
-                        //     latstep =latdir / maxj;
-                        //     for (var j = 0; j < maxj; j++){
-                        //         heatMap.addLatLng([curc[1] + j*latstep, curc[0] + j*longstep, 0.005]);
-                        //     }
-                        // }
                     });
 
 
@@ -186,13 +182,13 @@
             }
 
             function noFilter(){
-                filterRoutesBatch(filterWork, (d) => {
+                filterRoutesBatch(() => { return true }, (d) => {
                     var routes = [];
                     d.each((e) => {
                         routes.push(e.geometry.coordinates);
-                        e.properties.leafletPath.addTo(map);
+                        //e.properties.leafletPath.addTo(map);
                     })
-                    heatMap.addRoutes(routes);
+                    heatMap.setRoutes(routes);
                 });
             }
 
@@ -200,8 +196,67 @@
             function filterWork(d){
                 //return d.properties.DIFF_TIME > 60;
                 //return d.properties.REAL_SPEED > 15;
-                return d.properties.STARTTIMEDATE.getHours() >= 7 && d.properties.STARTTIMEDATE.getHours() <= 9; 
+                return !(d.properties.STARTTIMEDATE.getHours() >= 7 && d.properties.STARTTIMEDATE.getHours() <= 9); 
 
+            }
+        </script>
+
+        <script>
+            function toggleHeatmap(e){
+                if(!e.checked){
+                    heatMap.setOptions({show: false});
+                } else {
+                    heatMap.setOptions({show: true});
+                }
+            }
+            function optionsChange(slider, option){
+                let newoption = {};
+                newoption[option] = slider.value;
+                slider.parentElement.getElementsByClassName("currentvalue")[0].innerHTML = slider.value;
+                heatMap.setOptions(newoption);
+            }
+            
+        </script>
+        <div id="heatmap-controls" style="position: absolute; top: 0px; right: 0px; z-index: 100">
+            <h2>Heatmap Controls</h2>
+            <div>
+                <input type="checkbox" checked onchange="toggleHeatmap(this)"> Heatmap on
+            </div>
+            <div>
+                <h3>Line Width</h3>
+                1 <input type="range" min="1" max="30" value="3" onchange="optionsChange(this, 'lineWidth')"> 30 <span class="currentvalue"></span> 
+            </div>
+            <div>
+                <h3>Blur Radius</h3>
+                0 <input type="range" min="0" max="30" value="0" onchange="optionsChange(this, 'blurSize')"> 30 <span class="currentvalue"></span> 
+            </div>
+            <div>
+                <h3>Global Alpha</h3>
+                0 <input type="range" min="0" max="1" value="0.03" step="0.005" onchange="optionsChange(this, 'globalAlpha')" > 1 <span class="currentvalue"></span> 
+            </div>
+            <div>
+                <button onclick="heatMap.resetDefaultOptions()">Reset default</button>
+            </div>
+        </div>
+        <script>
+            function latLngDistance(c1, c2){ 	
+                var R = 6371e3; // metres
+                var t1 = toRadians(c1[0]);
+                var t2 = toRadians(c2[0]);
+                var dt = toRadians((c2[0]-c1[0]));
+                var dl = toRadians((c2[1]-c1[1]));
+
+                var a = Math.sin(dt/2) * Math.sin(dt/2) +
+                        Math.cos(t1) * Math.cos(t2) *
+                        Math.sin(dl/2) * Math.sin(dl/2);
+                var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+                var d = R * c;
+                return d;
+            }
+
+            function toRadians(degrees) {
+                return degrees * Math.PI / 180;
             }
         </script>
     </body>

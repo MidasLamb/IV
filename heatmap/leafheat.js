@@ -13,19 +13,26 @@ L.HeatLayer = (L.Layer ? L.Layer : L.Class).extend({
         1.0: 'red'
     },
 
-    options: {
+    defaultOptions: {
         globalAlpha: 0.03, //Changes the max value, lower means less peaks.
         lineWidth: 3, //How wide each route should be.
-        blurSize: 3 //How much each routes blurs.
+        blurSize: 3, //How much each routes blurs.
+        show: true // Whether or not the layer should be shown.
     },
 
     initialize: function(options){
         this._routes = [];
+        options = options === undefined? this.defaultOptions: options;
         Object.assign(this.options, options);
     },
 
     setOptions: function(options){
         Object.assign(this.options, options);
+        this.redraw();
+    },
+
+    resetDefaultOptions: function(){
+        Object.assign(this.options, this.defaultOptions);
         this.redraw();
     },
 
@@ -109,6 +116,12 @@ L.HeatLayer = (L.Layer ? L.Layer : L.Class).extend({
 
     _redraw: function () {
         if (!this._map) {
+            return;
+        }
+        if (!this.options.show){
+            var ctx = this._canvas.getContext('2d');
+            ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+            this._frame = null;
             return;
         }
 
