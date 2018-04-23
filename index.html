@@ -57,8 +57,10 @@
             return filterTimeRangeFunction(d);
         }
 
+        let timeStrToMin = (timeStr) => (+timeStr.substr(0,2)) * 60 + (+timeStr.substr(3,2));
+
         function filterTimeRangeFunction(d) {
-            let timeHandles = handlesSlider.noUiSlider.get();
+            let timeHandles = handlesSlider.noUiSlider.get().map(timeStrToMin);
             let getMinutes = (date) => date.getHours() * 60 + date.getMinutes();
             let startMinutes = getMinutes(d.properties.STARTTIMEDATE);
             //let stopMinutes = getMinutes(d.properties.STOPTIMEDTE);
