@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>IV: Project</title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="DC.title" content="Dataset: gis/zone30 map | The Datatank"/>
+        <base target="_parent" />
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script type="text/javascript" src='http://datasets.antwerpen.be/v4/public/js/leaflet.min.js'></script>
+        <link rel="stylesheet" href="http://datasets.antwerpen.be/v4/public/css/leaflet.css?v=1.0" />
+        <style>
+            body { margin:0; padding:0; font-family: sans-serif}
+            #map { position:absolute; top:0; bottom:0; width:100%; }
+            .fiets-route {
+                opacity: 0.0;
+                stroke: red;
+                cursor: pointer;
+            }
+            #heatmap-controls{
+                background: white;
+                padding: 10px;
+                border-radius: 5;
+                box-shadow: 1px 1px 5px black;
+            }
+        </style>
+    </head>
+    <body>
+        <div id='map'></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js" integrity="sha256-j2LsvgOlQFIb2Mphb+tX7d5pNmFdpsJU+s5GNo3z63g=" crossorigin="anonymous"></script>
+    <script src="heatmap/leafheat.js"></script>
+    <script src="story/story.js"></script>
+    <script src="filters.js"></script>
+        <script>
+            var map = L.map('map').setView([51.260197, 4.402771], 10);
+
+            // L.tileLayer(
+            //         "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            //         {
+            //             maxZoom: 19
+            //         }
+            // ).addTo(map);
+
+            // var Wikimedia = L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', {
+            //     attribution: '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>',
+            //     minZoom: 1,
+            //     maxZoom: 18
+            // });
+
+            var CartoDB_Positron = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+                subdomains: 'abcd',
+                maxZoom: 19
+            });
+
+            var OpenStreetMap_BlackAndWhite = L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            });
+
+            CartoDB_Positron.addTo(map);
+
+            L.tileLayer(
+                    "http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}",
+                    {
+                        maxZoom: 19,
+                        bounds: [
+                            //= the size of Antwerp
+                            [51.150,4.225],
+                            [51.400,4.500]
+                        ]
+                    }
+            ).addTo(map);
+
+
+            // var data = omnivore.kml('http://datasets.antwerpen.be/v4/public/gis/zone30.kml')
+            //     .on('ready', function() {
+            //         map.fitBounds(data.getBounds(), {padding: [20, 20]});
+
+            //         data.eachLayer(function(layer) {
+            //             var popup = "<strong>" + layer.feature.properties.name + "</strong>\n";
+            //             var description = layer.feature.properties.description;
+
+            //             if (description) {
+            //                 popup += description;
+            //             }
+
+            //             layer.bindPopup(popup);
+            //         });
+            //     })
+            //     .addTo(map);
+
+            // var data = omnivore.kml('http://datasets.antwerpen.be/v4/public/gis/cyclingchallenge.kml')
+            //     .on('ready', function() {
+            //         map.fitBounds(data.getBounds(), {padding: [20, 20]});
+
+            //         data.eachLayer(function(layer) {
+            //             var popup = "<strong>" + layer.feature.properties.name + "</strong>\n";
+            //             var description = layer.feature.properties.description;
+
+            //             if (description) {
+            //                 popup += description;
+            //             }
+
+            //             layer.bindPopup(popup);
+            //         });
+            //     })
+            //     .addTo(map);
+
+            function onEachFeature(feature, layer) {
+                layer.bindPopup("Start time:" + feature.properties.STARTTIMEDATE + "<br>" + 
+                                "Stop time:" + feature.properties.STOPTIMEDATE + "<br>" +
+                                "Start coord(lat, lng): [" + feature.geometry.coordinates[0][1] + "," + feature.geometry.coordinates[0][0] + "]" + "<br>" +
+                                "<button onclick='Filter.filterSingleRoute(&quot;"+feature.properties.TripID+"&quot;)'>Show only this route</button>");
+            }
+
+            var svg = d3.select("body").append("svg").attr("display", "none");
+
+            var heatMap = L.heatLayer();
+            
+            d3.json("fiets_routes_CC.geojson", 
+                function(data){
+                    var mystyle = {
+                        "className": "fiets-route"
+                    }
+
+                    data.features.forEach(element => {
+                        // console.log(element);
+                        element.properties.STARTTIMEDATE = new Date(element.properties.STARTTIME);
+                        element.properties.STOPTIMEDATE = new Date(element.properties.STOPTIME);
+                        element.properties.leafletPath = L.geoJson(element, { style: mystyle, onEachFeature: onEachFeature}); // geoJson works with lng lat, instead of other war around.
+                        element.geometry.coordinates.map((c) => { //Mutating map because we want lat, lng; not lng, lat
+                            var or = c[0];
+                            c[0] =  c[1]; 
+                            c[1] = or;
+                        });
+                        heatMap.addRoute(element.geometry.coordinates);
+                    });
+
+
+                    heatMap.addTo(map);
+
+                    // console.log(data);
+                    var features = data.features;
+                    svg.selectAll('path')
+                        .data(features)
+                        .enter()
+                            .append("path")
+                            .each((f) => {
+                                f.properties.leafletPath.addTo(map);
+                            })
+            });
+
+        </script>
+
+        <script>
+            function toggleHeatmap(e){
+                if(!e.checked){
+                    heatMap.setOptions({show: false});
+                } else {
+                    heatMap.setOptions({show: true});
+                }
+            }
+            function optionsChange(slider, option){
+                let newoption = {};
+                newoption[option] = slider.value;
+                slider.parentElement.getElementsByClassName("currentvalue")[0].innerHTML = slider.value;
+                heatMap.setOptions(newoption);
+            }
+            
+        </script>
+        <div id="controls" style="position: absolute; top:0px; bottom: 0px; left: 0px; right: 0px; z-index: 200; pointer-events:none;">
+            <div id="heatmap-controls" style="position: absolute; top: 0px; right: 0px; z-index: 100; pointer-events: all;">
+                <h2>Heatmap Controls</h2>
+                <div>
+                    <input type="checkbox" checked onchange="toggleHeatmap(this)"> Heatmap on
+                </div>
+                <div>
+                    <h3>Line Width</h3>
+                    1 <input type="range" min="1" max="30" value="3" onchange="optionsChange(this, 'lineWidth')"> 30 <span class="currentvalue"></span> 
+                </div>
+                <div>
+                    <h3>Blur Radius</h3>
+                    0 <input type="range" min="0" max="30" value="0" onchange="optionsChange(this, 'blurSize')"> 30 <span class="currentvalue"></span> 
+                </div>
+                <div>
+                    <h3>Global Alpha</h3>
+                    0 <input type="range" min="0" max="1" value="0.03" step="0.005" onchange="optionsChange(this, 'globalAlpha')" > 1 <span class="currentvalue"></span> 
+                </div>
+                <div>
+                    <button onclick="heatMap.resetDefaultOptions()">Reset default</button>
+                </div>
+            </div>
+        </div>
+        <script>
+            function latLngDistance(c1, c2){ 	
+                var R = 6371e3; // metres
+                var t1 = toRadians(c1[0]);
+                var t2 = toRadians(c2[0]);
+                var dt = toRadians((c2[0]-c1[0]));
+                var dl = toRadians((c2[1]-c1[1]));
+
+                var a = Math.sin(dt/2) * Math.sin(dt/2) +
+                        Math.cos(t1) * Math.cos(t2) *
+                        Math.sin(dl/2) * Math.sin(dl/2);
+                var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+                var d = R * c;
+                return d;
+            }
+
+            function toRadians(degrees) {
+                return degrees * Math.PI / 180;
+            }
+        </script>
+    </body>
+</html>
