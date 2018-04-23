@@ -1,0 +1,18 @@
+body {
+    background: black;
+}
+
+#time-slider {
+    display: block;
+    margin: auto;
+    width: 800px;
+}
+
+.heatmap {
+    display: block;
+    margin: auto;
+}
+
+.noUi-connect {
+    background-color: rgb(185, 0, 0);
+}

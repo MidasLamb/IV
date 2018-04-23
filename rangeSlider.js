@@ -17,6 +17,7 @@ noUiSlider.create(handlesSlider, {
 		'max': [ 1440 ]
 	},
 	format: formatter,
+	connect: true,
 	tooltips: true,
 	pips: {
 		mode: 'steps',
