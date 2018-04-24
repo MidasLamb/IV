@@ -27,7 +27,7 @@ function story(){
             break;
         case 3:
             storyStepInProgress = true;
-            Filter.noFilter();
+            new Filter().call(Filter.showRoutes());
             CartoDB_Positron.removeFrom(map);
             OpenStreetMap_BlackAndWhite.addTo(map);
             storyStepInProgress = false;
@@ -39,24 +39,24 @@ function story(){
 
 function storyFilter1(){
     // Everything but the early routes
-    Filter.filterAccepted((d)=>{
+    new Filter().addFilter((d)=>{
             return (d.properties.STARTTIMEDATE.getHours() >= 7 && d.properties.STARTTIMEDATE.getHours() <= 9); 
-    });
+    }).applyFilters().call(Filter.showRoutes());
 }
 
 function storyFilter2(){
     // Only the early routes
-    Filter.filterAccepted((d)=>{
+    new Filter().addFilter((d)=>{
             return !(d.properties.STARTTIMEDATE.getHours() >= 7 && d.properties.STARTTIMEDATE.getHours() <= 9); 
-    });
+    }).applyFilters().call(Filter.showRoutes());
 }
 
 function storyFilter3(){
     var home = [51.095238002418185, 4.133621995989944];
-    Filter.startNear(home, 200);
+    new Filter().addFilter(Filter.filterStartNear(home, 200)).applyFilters().call(Filter.showRoutes());
 }
 
 function storyFilter4(){
     var home = [51.095238002418185, 4.133621995989944];
-    Filter.stopNear(home, 200);
+    new Filter().addFilter(Filter.filterStopNear(home, 200)).applyFilters().call(Filter.showRoutes());
 }

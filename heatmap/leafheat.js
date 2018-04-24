@@ -144,11 +144,7 @@ L.HeatLayer = (L.Layer ? L.Layer : L.Class).extend({
             ctx.moveTo(p.x, p.y);
             for (var i = 1; i < route.length; i++){
                 p = this._map.latLngToContainerPoint(route[i]);
-                if (!bounds.contains(p) && (i+1) < route.length && ! bounds.contains(nextP = this._map.latLngToContainerPoint(route[i + 1]))){
-                    ctx.moveTo(nextP.x, nextP.y);
-                } else {
-                    ctx.lineTo(p.x, p.y);
-                } 
+                ctx.lineTo(p.x, p.y);
             }
             ctx.stroke();
             ctx.closePath();
