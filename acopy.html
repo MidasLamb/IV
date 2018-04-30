@@ -18,11 +18,62 @@
                 stroke: red;
                 cursor: pointer;
             }
-            #heatmap-controls{
+            #controls {
+                display: grid;
+                grid-template-areas: 
+                    "left head head right rightbar"
+                    "left center center right rightbar"
+                    "left footer footer right rightbar";
+                grid-template-columns: 1fr 5fr 3fr 2fr 75px;
+                position: absolute;
+                top:0px;
+                bottom: 0px;
+                left: 0px;
+                right: 0px;
+                z-index: 200;
+                pointer-events:none;
+            }
+
+            .invisible {
+                display: none;
+            }
+
+            #controls > div {
+                pointer-events: all;
+            }
+
+            #rightbar {
+                grid-area: rightbar;
                 background: white;
-                padding: 10px;
+                z-index: 100;
+                box-shadow: 1px 1px 5px black;
+            }
+
+            #rightbar > .bar-item {
+                font-size: 10pt;
+                text-align: center;
+                border: 2px solid black;
+                height: 75px;
+            }
+
+            #control-panels {
+                grid-area: right;
+                overflow-y: auto;
+                padding-left: 10px;
+            }
+
+            .control-panel {
+                background: white;
                 border-radius: 5;
                 box-shadow: 1px 1px 5px black;
+                padding: 10px;
+            }
+
+            #heatmap-controls{
+            }
+
+            .imf-preview {
+                pointer-events: none;
             }
         </style>
     </head>
@@ -37,8 +88,25 @@
     <script src="/js/filters.js"></script>
     <script src="/js/mapsetup.js"></script>
     <script src="/js/datareading.js"></script>
+    <script src="/js/interactiveMapFilter.js"></script>
+    <script>
+        function afterData() {
+            imf = new InteractiveMapFilter();
+        }
+    </script>
 
         <script>
+            function show(element){
+                var target = document.getElementById(element.dataset.target);
+                target.classList.toggle("invisible");
+                // var others = document.getElementsByClassName("control-panel");
+                // for (var i = 0; i < others.length; i++){
+                //     if (others[i] != target){
+                //         others[i].classList.add("invisible");
+                //     }
+                // }
+            }
+
             function toggleHeatmap(e){
                 if(!e.checked){
                     heatMap.setOptions({show: false});
@@ -52,28 +120,49 @@
                 slider.parentElement.getElementsByClassName("currentvalue")[0].innerHTML = slider.value;
                 heatMap.setOptions(newoption);
             }
-            
+
+            function clearRadioButtons() {
+                var radiobuttons = document.getElementsByClassName("imf-button");
+                for (var i = 0; i < radiobuttons.length; i++){
+                    radiobuttons[i].checked = false;
+                }
+            }
+
         </script>
-        <div id="controls" style="position: absolute; top:0px; bottom: 0px; left: 0px; right: 0px; z-index: 200; pointer-events:none;">
-            <div id="heatmap-controls" style="position: absolute; top: 0px; right: 0px; z-index: 100; pointer-events: all;">
-                <h2>Heatmap Controls</h2>
-                <div>
-                    <input type="checkbox" checked onchange="toggleHeatmap(this)"> Heatmap on
+        <div id="controls">
+            <div id="control-panels">
+                <div class="control-panel" id="heatmap-controls">
+                    <h2>Heatmap Controls</h2>
+                    <div>
+                        <input type="checkbox" checked onchange="toggleHeatmap(this)"> Heatmap on
+                    </div>
+                    <div>
+                        <h3>Line Width</h3>
+                        1 <input type="range" min="1" max="30" value="3" onchange="optionsChange(this, 'lineWidth')"> 30 <span class="currentvalue"></span> 
+                    </div>
+                    <div>
+                        <h3>Blur Radius</h3>
+                        0 <input type="range" min="0" max="30" value="0" onchange="optionsChange(this, 'blurSize')"> 30 <span class="currentvalue"></span> 
+                    </div>
+                    <div>
+                        <h3>Global Alpha</h3>
+                        0 <input type="range" min="0" max="1" value="0.03" step="0.005" onchange="optionsChange(this, 'globalAlpha')" > 1 <span class="currentvalue"></span> 
+                    </div>
+                    <div>
+                        <button onclick="heatMap.resetDefaultOptions()">Reset default</button>
+                    </div>
                 </div>
-                <div>
-                    <h3>Line Width</h3>
-                    1 <input type="range" min="1" max="30" value="3" onchange="optionsChange(this, 'lineWidth')"> 30 <span class="currentvalue"></span> 
+                <div class="control-panel" id="interactive-map-controls">
+                    <input type="radio" class="imf-button" onclick="imf.removePreviewRectangle();imf.setFilter(Filter.filterStartWithin);imf.setWhenDone(clearRadioButtons);imf.enable();"> <label>StartWithin</label>
+                    <input type="radio" class="imf-button" onclick="imf.removePreviewRectangle();imf.setFilter(Filter.filterStopsWithin);imf.setWhenDone(clearRadioButtons);imf.enable();"> <label>StopWithin</label>
+
+                    <button onclick="imf.removeMapFilter()">Clear</button>
                 </div>
-                <div>
-                    <h3>Blur Radius</h3>
-                    0 <input type="range" min="0" max="30" value="0" onchange="optionsChange(this, 'blurSize')"> 30 <span class="currentvalue"></span> 
-                </div>
-                <div>
-                    <h3>Global Alpha</h3>
-                    0 <input type="range" min="0" max="1" value="0.03" step="0.005" onchange="optionsChange(this, 'globalAlpha')" > 1 <span class="currentvalue"></span> 
-                </div>
-                <div>
-                    <button onclick="heatMap.resetDefaultOptions()">Reset default</button>
+            </div>
+
+            <div id="rightbar">
+                <div class="bar-item" data-target="heatmap-controls" onclick="show(this)">
+                    Heatmap
                 </div>
             </div>
         </div>

@@ -4,15 +4,34 @@ class Filter {
         this.beginData = beginData === undefined ? svg.selectAll('path') : beginData;
         this.currentData = this.beginData;
         this.filters = [];
+        this.namedFilters = [];
     }
 
-    addFilter(filter) {
-        this.filters.push(filter);
+    addFilter(filter, name) {
+        if (name === undefined){
+            this.filters.push(filter);
+        } else {
+            this.namedFilters[name] = filter;
+        }
         return this; // For chaining
     }
 
+    removeFilter(filter) {
+        var index = this.filters.indexOf(filter);
+        if (index > -1) {
+            this.filters.splice(index, 1);
+        }
+        this.currentData = this.beginData;
+        return this;
+    }
+
+    removeFilterByName(name) {
+        delete this.namedFilters[name];
+        return this;
+    }
+
     applyFilters() {
-        this.currentData = this.currentData.filter((d) => {
+        this.currentData = this.beginData.filter((d) => {
             var pass = true;
             this.filters.some((f) => {
                 if (!f(d)){
@@ -20,6 +39,13 @@ class Filter {
                     return true; //return true for early abort.
                 }
             });
+            for (var key in this.namedFilters){
+                if (!this.namedFilters[key](d)){
+                    pass = false;
+                    break;
+                }
+            }
+
             return pass;
         });
         return this; //For chaining
@@ -88,6 +114,34 @@ class Filter {
         return (d) => {
             return d.properties.TripID == tripID;
         };
+    }
+
+    static filterStartWithin(lat1, lng1, lat2, lng2){
+        var x1 = lat1 < lat2 ? lat1: lat2;
+        var x2 = lat1 < lat2 ? lat2: lat1;
+        var y1 = lng1 < lng2 ? lng1: lng2;
+        var y2 = lng1 < lng2 ? lng2: lng1;
+
+        return (d) => {
+            var x = d.geometry.coordinates[0][0];
+            var y = d.geometry.coordinates[0][1];
+            return x >= x1 && x <= x2 && y >= y1 && y <= y2;
+        }
+
+    }
+
+    static filterStopsWithin(lat1, lng1, lat2, lng2){
+        var x1 = lat1 < lat2 ? lat1: lat2;
+        var x2 = lat1 < lat2 ? lat2: lat1;
+        var y1 = lng1 < lng2 ? lng1: lng2;
+        var y2 = lng1 < lng2 ? lng2: lng1;
+
+        return (d) => {
+            var x = d.geometry.coordinates[d.geometry.coordinates.length - 1][0];
+            var y = d.geometry.coordinates[d.geometry.coordinates.length - 1][1];
+            return x >= x1 && x <= x2 && y >= y1 && y <= y2;
+        }
+
     }
 }
 

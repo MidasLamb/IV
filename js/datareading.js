@@ -47,6 +47,7 @@ function parseFietsRoutes() {
                     .append("path")
                     .each((f) => {
                         f.properties.leafletPath.addTo(map);
-                    })
+                    });
+            afterData();
     });
 }
