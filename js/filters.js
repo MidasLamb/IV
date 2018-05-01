@@ -143,6 +143,21 @@ class Filter {
         }
 
     }
+
+    static getMinutes(date) { return date.getHours() * 60 + date.getMinutes() }
+    
+    // time expressed in minutes of the day
+    static filterStartsInPeriod(minutesStart, minutesStop) {
+        return (d) => Filter.getMinutes(d.properties.STARTTIMEDATE) > minutesStart && 
+                           Filter.getMinutes(d.properties.STARTTIMEDATE) < minutesStop;
+    }
+
+    static filterStopsInPeriod(minutesStart, minutesStop) {
+        return (d) => Filter.getMinutes(d.properties.STOPTIMEDATE) > minutesStart && 
+                           Filter.getMinutes(d.properties.STOPTIMEDATE) < minutesStop;
+    }
+
+    
 }
 
 /*

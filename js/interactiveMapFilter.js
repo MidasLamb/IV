@@ -50,6 +50,7 @@ class InteractiveMapFilter {
         this.whenDone = whenDone;
     }
 
+    // @param filter  a function that returns a filter function given the arguments x1, y1, x2, y2
     setFilter(filter){
         this.baseFilter.removeFilterByName("imf");
         this.filter = filter;

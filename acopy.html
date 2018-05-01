@@ -10,6 +10,7 @@
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
         <script type="text/javascript" src='http://datasets.antwerpen.be/v4/public/js/leaflet.min.js'></script>
         <link rel="stylesheet" href="http://datasets.antwerpen.be/v4/public/css/leaflet.css?v=1.0" />
+        <link type="text/css" rel="stylesheet" href="noUiSlider.11.1.0/nouislider.min.css"/>
         <style>
             body { margin:0; padding:0; font-family: sans-serif}
             #map { position:absolute; top:0; bottom:0; width:100%; }
@@ -81,6 +82,8 @@
         <div id='map'></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js" integrity="sha256-j2LsvgOlQFIb2Mphb+tX7d5pNmFdpsJU+s5GNo3z63g=" crossorigin="anonymous"></script>
+    <script src="/noUiSlider.11.1.0/nouislider.min.js"></script>
+    <script src="/js/timeSlider.js"></script>
     <script src="/js/utility.js"></script>
     <script src="/js/var.js"></script>
     <script src="/js/heatmap/leafheat.js"></script>
@@ -89,9 +92,17 @@
     <script src="/js/mapsetup.js"></script>
     <script src="/js/datareading.js"></script>
     <script src="/js/interactiveMapFilter.js"></script>
+    <script src="/js/interactiveTimeFilter.js"></script>
     <script>
         function afterData() {
+            // initialize map filter
             imf = new InteractiveMapFilter();
+
+            // initialize time filter
+            window.addEventListener('load', () => {
+                window.itf = new InteractiveTimeFilter(imf.baseFilter);
+                itf.setFilter(Filter.filterStartsInPeriod);
+            })
         }
     </script>
 
@@ -165,6 +176,11 @@
                     Heatmap
                 </div>
             </div>
+
+            <div id="time-controls" style="position: absolute; width: 100%; bottom: 1em; left: 1em; pointer-events: all;">
+                <div id="time-slider" style="position: relative; margin: auto; width: 80%;"></div>
+            </div>
+
         </div>
     </body>
 </html>
