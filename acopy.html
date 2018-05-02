@@ -76,6 +76,14 @@
             .imf-preview {
                 pointer-events: none;
             }
+
+            #time-controls {
+            }
+
+            #nouislider-wrapper {
+                min-height: 50px;
+                margin-top: 40px;
+            }
         </style>
     </head>
     <body>
@@ -142,6 +150,12 @@
         </script>
         <div id="controls">
             <div id="control-panels">
+                <div class="control-panel" id="time-controls">
+                    <h2>Time Controls</h2>
+                    <div id="nouislider-wrapper">
+                        <div id="time-slider" style="position: relative; margin-left: 10%; width: 80%;"></div>
+                    </div>
+                </div>
                 <div class="control-panel" id="heatmap-controls">
                     <h2>Heatmap Controls</h2>
                     <div>
@@ -172,14 +186,15 @@
             </div>
 
             <div id="rightbar">
+                <div class="bar-item" data-target="time-controls" onclick="show(this)">
+                    Time-controls
+                </div>
                 <div class="bar-item" data-target="heatmap-controls" onclick="show(this)">
                     Heatmap
                 </div>
             </div>
 
-            <div id="time-controls" style="position: absolute; width: 100%; bottom: 1em; left: 1em; pointer-events: all;">
-                <div id="time-slider" style="position: relative; margin: auto; width: 80%;"></div>
-            </div>
+            
 
         </div>
     </body>

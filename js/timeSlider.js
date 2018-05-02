@@ -14,7 +14,7 @@ window.addEventListener('load', () => {
 	window.timeSlider = document.getElementById('time-slider');
 
 	noUiSlider.create(timeSlider, {
-		start: [ '06:00', '10:00' ],
+		start: [ '00:00', '24:00' ],
 		range: {
 			'min': [ 0 ],
 			'max': [ 1440 ]

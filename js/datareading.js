@@ -10,8 +10,8 @@ d3.csv("/data/deelnemers_gegevens.csv", function(data){
 });
 
 function onEachFeature(feature, layer) {
-    layer.bindPopup("Start time:" + feature.properties.STARTTIMEDATE + "<br>" + 
-                    "Stop time:" + feature.properties.STOPTIMEDATE + "<br>" +
+    layer.bindPopup("Start time:" + feature.properties.STARTTIME+ "<br>" + 
+                    "Stop time:" + feature.properties.STOPTIME+ "<br>" +
                     "Start coord(lat, lng): [" + feature.geometry.coordinates[0][1] + "," + feature.geometry.coordinates[0][0] + "]" + "<br>" +
                     "<button onclick='Filter.filterSingleRoute(&quot;"+feature.properties.TripID+"&quot;)'>Show only this route</button>");
 }
