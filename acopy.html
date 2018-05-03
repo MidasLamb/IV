@@ -35,8 +35,12 @@
                 pointer-events:none;
             }
 
-            .invisible {
-                display: none;
+            .control-panel.invisible {
+                max-height: 0px;
+                padding-top: 0px;
+                padding-bottom: 0px;
+                /*display: none;*/
+                transition: max-height 1s, padding 0.3s 0.5s;
             }
 
             #controls > div {
@@ -68,6 +72,10 @@
                 border-radius: 5;
                 box-shadow: 1px 1px 5px black;
                 padding: 10px;
+                transition: max-height 1s, padding 0.3s;
+                
+                overflow-y: hidden;
+                max-height: 500px;
             }
 
             #heatmap-controls{
