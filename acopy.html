@@ -115,10 +115,17 @@
             imf = new InteractiveMapFilter();
 
             // initialize time filter
-            window.addEventListener('load', () => {
+            const addTimeFilter = () => {
                 window.itf = new InteractiveTimeFilter(imf.baseFilter);
                 itf.setFilter(Filter.filterStartsInPeriod);
-            })
+            }
+
+            if (document.readyState != 'complete') {
+                window.addEventListener('load', addTimeFilter);
+            } else {
+                addTimeFilter();
+            }
+
         }
     </script>
 
