@@ -112,11 +112,12 @@
     <script>
         function afterData() {
             // initialize map filter
-            imf = new InteractiveMapFilter();
+            baseFilter = new Filter();
+            imf = new InteractiveMapFilter(baseFilter);
 
             // initialize time filter
             window.addEventListener('load', () => {
-                window.itf = new InteractiveTimeFilter(imf.baseFilter);
+                window.itf = new InteractiveTimeFilter(baseFilter);
                 itf.setFilter(Filter.filterStartsInPeriod);
             })
         }
@@ -155,6 +156,17 @@
                 }
             }
 
+            function mapFilter(filter){
+                imf.removePreviewRectangle();
+                imf.setFilter(filter);
+                imf.setWhenDone(clearRadioButtons);
+                imf.enable();
+            }
+
+            function addFilter(){
+                baseFilter.addFilter(Filter.filterProfession("student")).applyFilters().call(Filter.showRoutes())
+            }
+
         </script>
         <div id="controls">
             <div id="control-panels">
@@ -186,10 +198,14 @@
                     </div>
                 </div>
                 <div class="control-panel" id="interactive-map-controls">
-                    <input type="radio" class="imf-button" onclick="imf.removePreviewRectangle();imf.setFilter(Filter.filterStartWithin);imf.setWhenDone(clearRadioButtons);imf.enable();"> <label>StartWithin</label>
-                    <input type="radio" class="imf-button" onclick="imf.removePreviewRectangle();imf.setFilter(Filter.filterStopsWithin);imf.setWhenDone(clearRadioButtons);imf.enable();"> <label>StopWithin</label>
+                    <label><input type="radio" name="map" class="imf-button" onclick="mapFilter(Filter.filterStartWithin)"> StartWithin</label> <br>
+                    <label><input type="radio" name="map" class="imf-button" onclick="mapFilter(Filter.filterStopsWithin)"> StopWithin</label> <br>
+                    <label><input type="radio" name="map" class="imf-button" onclick="mapFilter(Filter.filterGoesThrough)"> Goes Through</label> <br>
 
                     <button onclick="imf.removeMapFilter()">Clear</button>
+                </div>
+                <div class="control-panel" id="data-filter">
+                    <input type="checkbox" onclick="addFilter()"> <label>Only students</label>
                 </div>
             </div>
 

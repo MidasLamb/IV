@@ -141,7 +141,29 @@ class Filter {
             var y = d.geometry.coordinates[d.geometry.coordinates.length - 1][1];
             return x >= x1 && x <= x2 && y >= y1 && y <= y2;
         }
+    }
 
+    static filterGoesThrough(lat1, lng1, lat2, lng2){
+        var x1 = lat1 < lat2 ? lat1: lat2;
+        var x2 = lat1 < lat2 ? lat2: lat1;
+        var y1 = lng1 < lng2 ? lng1: lng2;
+        var y2 = lng1 < lng2 ? lng2: lng1;
+
+        return (d) => {
+            var passesTrough = false
+            d.geometry.coordinates.some((e) => {
+                var x = e[0];
+                var y = e[1];
+
+
+                if (x >= x1 && x <= x2 && y >= y1 && y <= y2){
+                    passesTrough = true;
+                    return true;
+                } //TODO add to check whether segment crosses
+
+            })
+            return passesTrough;
+        }
     }
 
     static getMinutes(date) { return date.getHours() * 60 + date.getMinutes() }
@@ -155,6 +177,14 @@ class Filter {
     static filterStopsInPeriod(minutesStart, minutesStop) {
         return (d) => Filter.getMinutes(d.properties.STOPTIMEDATE) > minutesStart && 
                            Filter.getMinutes(d.properties.STOPTIMEDATE) < minutesStop;
+    }
+
+    static filterProfession(nameArray){
+        nameArray = (nameArray instanceof Array) ? nameArray: [nameArray]
+        return (d) => {
+            console.log(d.extradata[" Profession"])
+            return nameArray.indexOf(d.extradata[" Profession"].toLowerCase()) > -1;
+        }
     }
 
     
