@@ -182,7 +182,7 @@ class Filter {
     static filterProfession(nameArray){
         nameArray = (nameArray instanceof Array) ? nameArray: [nameArray]
         return (d) => {
-            console.log(d.extradata[" Profession"])
+            //console.log(d.extradata[" Profession"])
             return nameArray.indexOf(d.extradata[" Profession"].toLowerCase()) > -1;
         }
     }

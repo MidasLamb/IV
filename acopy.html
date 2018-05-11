@@ -40,7 +40,7 @@
                 padding-top: 0px;
                 padding-bottom: 0px;
                 /*display: none;*/
-                transition: max-height 1s, padding 0.3s 0.5s;
+                transition: max-height 0.5s, padding 0.2s 0.3s;
             }
 
             #controls > div {
@@ -59,6 +59,25 @@
                 text-align: center;
                 border: 2px solid black;
                 height: 75px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            #rightbar > .bar-item > svg {
+                max-width: 70px;
+                max-height: 70px;
+                width: 70px;
+            }
+
+            #rightbar > .bar-item.inactive {
+                border-color: lightgrey;
+                color: lightgrey;
+            }
+
+            #rightbar > .bar-item.inactive > svg {
+                fill: lightgrey;
+                stroke: lightgrey;
             }
 
             #control-panels {
@@ -72,7 +91,7 @@
                 border-radius: 5;
                 box-shadow: 1px 1px 5px black;
                 padding: 10px;
-                transition: max-height 1s, padding 0.3s;
+                transition: max-height 0.5s, padding 0.2s;
                 
                 overflow-y: hidden;
                 max-height: 500px;
@@ -134,6 +153,12 @@
             function show(element){
                 var target = document.getElementById(element.dataset.target);
                 target.classList.toggle("invisible");
+                if (target.classList.contains("invisible")){
+                    element.classList.add("inactive");
+                } else {
+                    element.classList.remove("inactive");
+                }
+
                 // var others = document.getElementsByClassName("control-panel");
                 // for (var i = 0; i < others.length; i++){
                 //     if (others[i] != target){
@@ -170,8 +195,13 @@
                 imf.enable();
             }
 
-            function addFilter(){
-                baseFilter.addFilter(Filter.filterProfession("student")).applyFilters().call(Filter.showRoutes())
+            function addFilter(element){
+                if(element.checked) {
+                    baseFilter.addFilter(Filter.filterProfession("student"), "students").applyFilters().call(Filter.showRoutes());
+                } else {
+                    console.log("else");
+                    baseFilter.removeFilterByName("students").applyFilters().call(Filter.showRoutes());
+                }
             }
 
         </script>
@@ -193,10 +223,6 @@
                         1 <input type="range" min="1" max="30" value="3" onchange="optionsChange(this, 'lineWidth')"> 30 <span class="currentvalue"></span> 
                     </div>
                     <div>
-                        <h3>Blur Radius</h3>
-                        0 <input type="range" min="0" max="30" value="0" onchange="optionsChange(this, 'blurSize')"> 30 <span class="currentvalue"></span> 
-                    </div>
-                    <div>
                         <h3>Global Alpha</h3>
                         0 <input type="range" min="0" max="1" value="0.03" step="0.005" onchange="optionsChange(this, 'globalAlpha')" > 1 <span class="currentvalue"></span> 
                     </div>
@@ -212,16 +238,34 @@
                     <button onclick="imf.removeMapFilter()">Clear</button>
                 </div>
                 <div class="control-panel" id="data-filter">
-                    <input type="checkbox" onclick="addFilter()"> <label>Only students</label>
+                    <lable><input type="checkbox" onclick="addFilter(this)">Only students</label>
                 </div>
             </div>
 
             <div id="rightbar">
                 <div class="bar-item" data-target="time-controls" onclick="show(this)">
-                    Time-controls
+                    <svg version="1.1" id="Laag_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="296 207 273 245" style="enable-background:new 0 0 1366 768;" xml:space="preserve">
+                        <style type="text/css">
+                            .st0{fill:#FFFFFF;}
+                        </style>
+                        <g>
+                            <path d="M430.5,226c55.4,0,100.5,45.1,100.5,100.5S485.9,427,430.5,427S330,381.9,330,326.5S375.1,226,430.5,226 M430.5,216
+                                c-61,0-110.5,49.5-110.5,110.5S369.5,437,430.5,437S541,387.5,541,326.5S491.5,216,430.5,216L430.5,216z"/>
+                        </g>
+                        <g>
+                            <circle class="st0" cx="432.5" cy="328.5" r="5.5"/>
+                            <path d="M432.5,328c0.3,0,0.5,0.2,0.5,0.5s-0.2,0.5-0.5,0.5s-0.5-0.2-0.5-0.5S432.2,328,432.5,328 M432.5,318
+                                c-5.8,0-10.5,4.7-10.5,10.5s4.7,10.5,10.5,10.5s10.5-4.7,10.5-10.5S438.3,318,432.5,318L432.5,318z"/>
+                        </g>
+                        <rect x="428" y="244" width="8" height="84"/>
+                        <rect x="445.2" y="320" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -113.2686 420.8715)" width="12.4" height="54.4"/>
+                    </svg>
                 </div>
                 <div class="bar-item" data-target="heatmap-controls" onclick="show(this)">
-                    Heatmap
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Camada_1" x="0px" y="0px" width="308px" height="534px" viewBox="151.5 50.5 308 534" enable-background="new 151.5 50.5 308 534" xml:space="preserve">
+                        <path d="M430.095,366.991c-32.803-42.283-33.434-90.521-16.298-133.116c-36.315,35.569-56.763,79.548-42.484,123.955  c1.812,5.648,2.974,11.181,3.824,16.83l0.325,6.812l-2.026,0.746l-8.623-19.706c-12.252-33.538-14.058-68.899-2.025-105.215  c23.96-71.133-7.344-140.785-64.426-196.795c26.304,67.724,23.856,144.726-29.388,212.884c-10.227,12.993-18.636,26.2-25.343,39.719  l-4.052,8.941l0.324-2.338c10.753-45.789-12.674-87.326-51.652-118.63c20.232,40.569,23.323,88.71-6.071,134.499  c-24.603,47.277-30.888,105.962-11.609,149.519c30.141,62.938,70.185,91.903,124.604,93.391c7.876,0.104,15.973-0.208,24.283-1.278  c44.407-4.792,99.891-26.506,117.779-77.944C454.911,455.162,463.326,410.003,430.095,366.991z"/>
+                        </svg>
                 </div>
             </div>
 

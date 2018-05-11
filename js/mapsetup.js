@@ -26,17 +26,17 @@ var OpenStreetMap_BlackAndWhite = L.tileLayer('http://{s}.tiles.wmflabs.org/bw-m
 
 CartoDB_Positron.addTo(map);
 
-L.tileLayer(
-        "http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}",
-        {
-            maxZoom: 19,
-            bounds: [
-                //= the size of Antwerp
-                [51.150,4.225],
-                [51.400,4.500]
-            ]
-        }
-).addTo(map);
+// L.tileLayer(
+//         "http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}",
+//         {
+//             maxZoom: 19,
+//             bounds: [
+//                 //= the size of Antwerp
+//                 [51.150,4.225],
+//                 [51.400,4.500]
+//             ]
+//         }
+// ).addTo(map);
 
 
 // var data = omnivore.kml('http://datasets.antwerpen.be/v4/public/gis/zone30.kml')

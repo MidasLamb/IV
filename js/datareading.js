@@ -39,7 +39,7 @@ function parseFietsRoutes() {
 
             heatMap.addTo(map);
 
-            // console.log(data);
+            console.log(data);
             var features = data.features;
             svg.selectAll('path')
                 .data(features)

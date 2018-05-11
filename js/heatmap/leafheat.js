@@ -16,7 +16,6 @@ L.HeatLayer = (L.Layer ? L.Layer : L.Class).extend({
     defaultOptions: {
         globalAlpha: 0.03, //Changes the max value, lower means less peaks.
         lineWidth: 3, //How wide each route should be.
-        blurSize: 3, //How much each routes blurs.
         show: true // Whether or not the layer should be shown.
     },
 
@@ -133,8 +132,6 @@ L.HeatLayer = (L.Layer ? L.Layer : L.Class).extend({
         ctx.globalAlpha = this.options.globalAlpha;
         ctx.lineWidth = this.options.lineWidth;
         ctx.lineJoin = ctx.lineCap = 'round';
-        ctx.shadowBlur = this.options.blurSize;
-        ctx.shadowColor = 'black';
         ctx.strokeStyle = "black";
 
         this._routes.forEach((route) => {
