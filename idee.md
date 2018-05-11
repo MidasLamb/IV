@@ -24,3 +24,7 @@ Ideeën
 - Opsplitsen qua leeftijd / werk of niet / ...
    - kijken of die groepen ander gedrag hebben
 
+
+## Insight:
+Ringfietspad over Grotesteensweg -> "knelpunt"
+
