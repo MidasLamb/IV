@@ -26,6 +26,7 @@
                     "left center center right rightbar"
                     "left footer footer right rightbar";
                 grid-template-columns: 1fr 5fr 3fr 2fr 75px;
+                grid-template-rows: 1fr 1fr 1fr;
                 position: absolute;
                 top:0px;
                 bottom: 0px;
@@ -110,6 +111,11 @@
             #nouislider-wrapper {
                 min-height: 50px;
                 margin-top: 40px;
+            }
+
+            .graphs {
+                grid-area: footer;
+                background: white;
             }
         </style>
     </head>
@@ -269,7 +275,10 @@
                 </div>
             </div>
 
-            
+            <div class="graphs">
+
+
+            </div> 
 
         </div>
     </body>
