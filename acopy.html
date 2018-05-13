@@ -134,6 +134,7 @@
     <script src="/js/datareading.js"></script>
     <script src="/js/interactiveMapFilter.js"></script>
     <script src="/js/interactiveTimeFilter.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
     <script>
         function afterData() {
             // initialize map filter
@@ -151,7 +152,7 @@
             } else {
                 addTimeFilter();
             }
-
+        console.log(getData(plotData()));
         }
     </script>
 
@@ -276,10 +277,76 @@
             </div>
 
             <div class="graphs">
-
+            <canvas id="timeplot"></canvas>
 
             </div> 
 
         </div>
+    <script>
+var ctx = document.getElementById('timeplot').getContext('2d');
+var plotData = plotData();
+var chart = new Chart(ctx, {
+    // The type of chart we want to create
+    type: 'bar',
+
+    // The data for our dataset
+    data: {
+        labels: labels(plotData),
+        datasets: [{
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderColor: 'rgb(255, 99, 132)',
+            data: [],
+        }]
+    },
+
+    // Configuration options go here
+    options: {
+        legend: {
+            display: false
+        },
+        responsive: false
+            }
+});
+
+function plotData(){
+    var times = []
+    baseFilter.call(function(d){
+        d.each((e)=>{
+            times.push(e.properties.STARTTIMEDATE.getHours())
+        });
+    });
+    return times;
+};
+
+function labels(d){
+    var max = Math.max.apply(Math, d);
+    var min = Math.min.apply(Math, d);
+    return Array.from(new Array(max+1), (x,i) => i + min)
+};
+
+function getData(d){
+    var max = Math.max.apply(Math, d)
+    var min = Math.min.apply(Math, d)
+    var labels = Array.from(new Array(max+1), (x,i) => i + min)
+    var dataDict = d.reduce(function (acc, curr) {
+      if (typeof acc[curr] == 'undefined') {
+        acc[curr] = 1;
+      } else {
+        acc[curr] += 1;
+      }
+      return acc;
+    }, {})
+    console.log(labels)
+    var data = []
+    for (var i = 0; i < labels.length; i++){
+        data.push(dataDict[labels[i]])
+    }
+    return data;
+};
+
+
+
+
+</script>
     </body>
 </html>
