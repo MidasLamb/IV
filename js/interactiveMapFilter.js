@@ -6,7 +6,7 @@ class InteractiveMapFilter {
 
         this.baseFilter = baseFilter === undefined ? new Filter() : baseFilter;
         this.filter = filter === undefined ? Filter.filterStartWithin: filter;
-        this.callWhenFiltered = callWhenFiltered === undefined? Filter.showRoutes() : callWhenFiltered;
+        this.callWhenFiltered = callWhenFiltered === undefined? Filter.updateRoutesAndGraphs() : callWhenFiltered;
 
         var dragging = false;
         var mousedownlatlng;

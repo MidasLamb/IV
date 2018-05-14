@@ -69,14 +69,22 @@ class Filter {
     *   Usefull actions
     */
 
-    static showRoutes(){
+    static updateRoutesAndGraphs(){
         return (d) => {
+            // update routes
             var routes = [];
             d.each((e) => {
                 routes.push(e.geometry.coordinates);
             });
             heatMap.setRoutes(routes);
-        }
+
+            // update graphs
+            window.chart.data.datasets.forEach((dataset) => {
+                dataset.data.push(getData(plotData(baseFilter)));
+            });
+            window.chart.update();
+
+        };
     }
 
     /*
@@ -195,5 +203,5 @@ class Filter {
 */
 
 function resetHeatmap(){
-    new Filter().call(Filter.showRoutes());
+    new Filter().call(Filter.updateRoutesAndGraphs());
 }
