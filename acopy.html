@@ -209,10 +209,10 @@
 
             function addFilter(element){
                 if(element.checked) {
-                    baseFilter.addFilter(Filter.filterProfession("student"), "students").applyFilters().call(Filter.showRoutes());
+                    baseFilter.addFilter(Filter.filterProfession("student"), "students").applyFilters().call(Filter.updateRoutesAndGraphs());
                 } else {
                     console.log("else");
-                    baseFilter.removeFilterByName("students").applyFilters().call(Filter.showRoutes());
+                    baseFilter.removeFilterByName("students").applyFilters().call(Filter.updateRoutesAndGraphs());
                 }
             }
 
@@ -314,10 +314,9 @@
         </div>
     <script>
 var ctx = document.getElementById('timeplot').getContext('2d');
-var plotData = plotData();
 
 let chart;
-function initializeChart(baseFilter) {
+function initializeChart() {
     window.chart = new Chart(ctx, {
         // The type of chart we want to create
         type: 'line',
@@ -378,9 +377,9 @@ function getData(d){
       return acc;
     }, {})
     var data = []
-    let labels = labels(d);
-    for (var i = 0; i < labels.length; i++){
-        if (!(i in dataDict.keys())) {
+    let lbls = labels(d);
+    for (var i = 0; i < lbls.length; i++){
+        if (!(i in Object.keys(dataDict))) {
             dataDict[i] = 0;
         }
         data.push(dataDict[i]);

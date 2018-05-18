@@ -70,6 +70,15 @@ class Filter {
     */
 
     static updateRoutesAndGraphs(){
+
+        function removeData(chart) {
+            //chart.data.labels.pop();
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data = [];
+            });
+            chart.update();
+        }
+
         return (d) => {
             // update routes
             var routes = [];
@@ -79,13 +88,14 @@ class Filter {
             heatMap.setRoutes(routes);
 
             // update graphs
+            // removeData(window.chart);
             window.chart.data.datasets.forEach((dataset) => {
-                dataset.data.push(getData(plotData(baseFilter)));
+                dataset.data = getData(plotData(baseFilter));
             });
             window.chart.update();
-
         };
     }
+    
 
     /*
     *   Usefull filters
