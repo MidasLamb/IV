@@ -4,7 +4,7 @@ import json
 import geojson
 from datetime import datetime
 
-with open('./data/fiets_routes_CC.geojson') as f:
+with open('./fiets_routes_CC.geojson') as f:
     data = json.load(f)
 features = data["features"]
 

@@ -15,9 +15,33 @@
             body { margin:0; padding:0; font-family: sans-serif}
             #map { position:absolute; top:0; bottom:0; width:100%; }
             .fiets-route {
-                opacity: 0.0;
-                stroke: red;
+                stroke-opacity: 0.0;
                 cursor: pointer;
+            }
+            .car-route.active {
+                stroke-opacity: 1.0;
+            }
+
+            .hideimportant {
+                display: none !important;
+            }
+
+            .hide {
+                display: none;
+            }
+
+
+            .fiets-route:hover {
+                stroke: red !important;
+            }
+
+            .fiets-route.auto-faster{
+                stroke: yellow;
+                stroke-opacity: 1.0;
+            }
+            .fiets-route.auto-slower {
+                stroke-opacity: 1.0;
+                stroke: green;
             }
             #controls {
                 display: grid;
@@ -136,11 +160,13 @@
     <script src="/js/interactiveMapFilter.js"></script>
     <script src="/js/interactiveTimeFilter.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <script src="/js/individualRouteController.js"></script>
     <script>
         function afterData() {
             // initialize map filter
             baseFilter = new Filter();
             imf = new InteractiveMapFilter(baseFilter);
+            irc = new IndividualRouteController(baseFilter);
 
             // initialize time filter
             const addTimeFilter = () => {
@@ -153,6 +179,7 @@
             } else {
                 addTimeFilter();
             }
+
         console.log(getData(plotData()));
         }
     </script>
