@@ -77,15 +77,33 @@ class Filter {
     *   Usefull actions
     */
 
-    static showRoutes(){
+    static updateRoutesAndGraphs(){
+
+        function removeData(chart) {
+            //chart.data.labels.pop();
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data = [];
+            });
+            chart.update();
+        }
+
         return (d) => {
+            // update routes
             var routes = [];
             d.each((e) => {
                 routes.push(e.geometry.coordinates);
             });
             heatMap.setRoutes(routes);
-        }
+
+            // update graphs
+            // removeData(window.chart);
+            window.chart.data.datasets.forEach((dataset) => {
+                dataset.data = getData(plotData(baseFilter));
+            });
+            window.chart.update();
+        };
     }
+    
 
     /*
     *   Usefull filters
@@ -220,5 +238,5 @@ class Filter {
 */
 
 function resetHeatmap(){
-    new Filter().call(Filter.showRoutes());
+    new Filter().call(Filter.updateRoutesAndGraphs());
 }

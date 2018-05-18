@@ -12,7 +12,7 @@
         <link rel="stylesheet" href="http://datasets.antwerpen.be/v4/public/css/leaflet.css?v=1.0" />
         <link type="text/css" rel="stylesheet" href="noUiSlider.11.1.0/nouislider.min.css"/>
         <style>
-            body { margin:0; padding:0; font-family: sans-serif}
+            body { margin:0; padding:0; font-family: sans-serif; overflow: hidden}
             #map { position:absolute; top:0; bottom:0; width:100%; }
             .fiets-route {
                 stroke-opacity: 0.0;
@@ -50,7 +50,7 @@
                     "left center center right rightbar"
                     "left footer footer right rightbar";
                 grid-template-columns: 1fr 5fr 3fr 2fr 75px;
-                grid-template-rows: 1fr 1fr 1fr;
+                grid-template-rows: 1fr 1fr 15%;
                 position: absolute;
                 top:0px;
                 bottom: 0px;
@@ -180,6 +180,12 @@
                 addTimeFilter();
             }
 
+<<<<<<< HEAD
+=======
+            // initialize statistics
+            initializeChart(baseFilter);
+
+>>>>>>> 4e6c4721b327c11d1a1c9c35f515b0c549903d04
         console.log(getData(plotData()));
         }
     </script>
@@ -232,10 +238,10 @@
 
             function addFilter(element){
                 if(element.checked) {
-                    baseFilter.addFilter(Filter.filterProfession("student"), "students").applyFilters().call(Filter.showRoutes());
+                    baseFilter.addFilter(Filter.filterProfession("student"), "students").applyFilters().call(Filter.updateRoutesAndGraphs());
                 } else {
                     console.log("else");
-                    baseFilter.removeFilterByName("students").applyFilters().call(Filter.showRoutes());
+                    baseFilter.removeFilterByName("students").applyFilters().call(Filter.updateRoutesAndGraphs());
                 }
             }
 
@@ -329,36 +335,49 @@
             </div>
 
             <div class="graphs">
-            <canvas id="timeplot"></canvas>
-
+                <div class="timeplot-container" style="position: relative; height: 100%; width: 100%; max-height: 100%; max-width: 100%;">
+                    <canvas id="timeplot"></canvas>
+                </div>
             </div> 
 
         </div>
     <script>
 var ctx = document.getElementById('timeplot').getContext('2d');
-var plotData = plotData();
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'bar',
 
-    // The data for our dataset
-    data: {
-        labels: labels(plotData),
-        datasets: [{
-            backgroundColor: 'rgb(255, 99, 132)',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [],
-        }]
-    },
-
-    // Configuration options go here
-    options: {
-        legend: {
-            display: false
+let chart;
+function initializeChart() {
+    window.chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'line',
+        // Configuration options go here
+        options: {
+            legend: {
+                display: false
+            },
+            layout: {
+                padding: {
+                 top: 0,
+                 right: 0,
+                 bottom: 5,
+                 left: 0
+                }
+            },
+            maintainAspectRatio: false,
+            responsive: true
         },
-        responsive: false
-            }
-});
+    
+        // The data for our dataset
+        data: {
+            labels: labels(plotData()),
+            datasets: [{
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: getData(plotData()),
+            }]
+        }
+    });
+}
+
 
 function plotData(){
     var times = []
@@ -373,13 +392,11 @@ function plotData(){
 function labels(d){
     var max = Math.max.apply(Math, d);
     var min = Math.min.apply(Math, d);
-    return Array.from(new Array(max+1), (x,i) => i + min)
+    return Array.from(new Array(24), (x,i) => i);
 };
 
 function getData(d){
-    var max = Math.max.apply(Math, d)
-    var min = Math.min.apply(Math, d)
-    var labels = Array.from(new Array(max+1), (x,i) => i + min)
+
     var dataDict = d.reduce(function (acc, curr) {
       if (typeof acc[curr] == 'undefined') {
         acc[curr] = 1;
@@ -388,10 +405,13 @@ function getData(d){
       }
       return acc;
     }, {})
-    console.log(labels)
     var data = []
-    for (var i = 0; i < labels.length; i++){
-        data.push(dataDict[labels[i]])
+    let lbls = labels(d);
+    for (var i = 0; i < lbls.length; i++){
+        if (!(i in Object.keys(dataDict))) {
+            dataDict[i] = 0;
+        }
+        data.push(dataDict[i]);
     }
     return data;
 };
