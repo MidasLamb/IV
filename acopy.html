@@ -161,6 +161,7 @@
     <script src="/js/interactiveTimeFilter.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
     <script src="/js/individualRouteController.js"></script>
+    <script src='lodash.js'></script>
     <script>
         function afterData() {
             // initialize map filter
@@ -181,9 +182,7 @@
             }
 
             // initialize statistics
-            initializeChart(baseFilter);
-
-        console.log(getData(plotData()));
+            initializeChart("age");
         }
     </script>
 
@@ -276,7 +275,7 @@
                     <button onclick="imf.removeMapFilter()">Clear</button>
                 </div>
                 <div class="control-panel" id="data-filter">
-                    <lable><input type="checkbox" onclick="addFilter(this)">Only students</label>
+                    <label><input type="checkbox" onclick="addFilter(this)">Only students</label>
                 </div>
             </div>
 
@@ -339,13 +338,62 @@
 
         </div>
     <script>
+function makeAge(min,max,step){
+    var curYear = (new Date()).getFullYear()
+    return {
+        "min": min,
+        "max": max,
+        "step": step,
+        "func": (e) => ((isNaN(parseInt(e.extradata[" Year"]))) ?  0 : Math.ceil((curYear - parseInt(e.extradata[" Year"])-min)/step)) ,
+        "missing": true
+    }
+}
+function makeTime(min,max,step){
+    return {
+        "min": min,
+        "max": max,
+        "step": step,
+        "func": (e) => e.properties.STARTTIMEDATE.getHours(),
+        "missing": false
+    }
+}
+function makeSpeed(min,max,step){
+    return {
+        "min": min,
+        "max": max,
+        "step": step,
+        "func": (e) => Math.ceil((e.properties.REAL_SPEED-min)/step),
+        "missing": false
+    }
+}
+function makeDistance(min,max,step){
+    return {
+        "min": min,
+        "max": max,
+        "step": step,
+        "func": (e) => Math.ceil((e.extradata[" Distance"]-min)/step),
+        "missing": false
+    }
+}
+
+
+
+var chartData = {
+    "age": makeAge(5,95,10),
+    "time": makeTime(0,23,1),
+    "speed": makeSpeed(5,35,5),
+    "distance": makeDistance(0,35,5)
+}
+
 var ctx = document.getElementById('timeplot').getContext('2d');
 
 let chart;
-function initializeChart() {
+function initializeChart(variable) {
+    var varData = chartData[variable];
+    console.log(varData["func"]);
     window.chart = new Chart(ctx, {
         // The type of chart we want to create
-        type: 'line',
+        type: 'bar',
         // Configuration options go here
         options: {
             legend: {
@@ -365,26 +413,40 @@ function initializeChart() {
     
         // The data for our dataset
         data: {
-            labels: labels(plotData()),
+            labels: labels2(varData["min"],varData["max"],varData["step"],varData["missing"]),
             datasets: [{
                 backgroundColor: 'rgb(255, 99, 132)',
                 borderColor: 'rgb(255, 99, 132)',
-                data: getData(plotData()),
+                data: getData(plotData(varData["func"]))
             }]
         }
     });
 }
 
 
-function plotData(){
-    var times = []
+
+
+function plotData(f){
+    var data = [];
     baseFilter.call(function(d){
         d.each((e)=>{
-            times.push(e.properties.STARTTIMEDATE.getHours())
+            data.push(f(e))
         });
     });
-    return times;
+    console.log(data);
+    return data;
 };
+function labels2(min,max,step,missing){
+    var range = _.range(min,max+1,step);
+    var lab = []
+    if (missing){
+        lab.push("unknown");
+    }
+    for (i = 0; i < range.length-1; i++) {
+        lab.push(range[i].toString()+"-"+range[i+1].toString())
+    }
+    return lab
+}
 
 function labels(d){
     var max = Math.max.apply(Math, d);
@@ -393,7 +455,7 @@ function labels(d){
 };
 
 function getData(d){
-
+    let lbls = _.range(Math.min.apply(Math,d),Math.max.apply(Math,d));
     var dataDict = d.reduce(function (acc, curr) {
       if (typeof acc[curr] == 'undefined') {
         acc[curr] = 1;
@@ -403,13 +465,13 @@ function getData(d){
       return acc;
     }, {})
     var data = []
-    let lbls = labels(d);
     for (var i = 0; i < lbls.length; i++){
         if (!(i in Object.keys(dataDict))) {
             dataDict[i] = 0;
         }
         data.push(dataDict[i]);
     }
+    console.log(lbls);
     return data;
 };
 
