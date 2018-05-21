@@ -206,7 +206,7 @@
             }
 
             // initialize statistics
-            initializeScatterChart("age","speed");
+            initializeBarChart("age");
         }
     </script>
 
@@ -539,7 +539,7 @@ function makeDistance(min,max,step, title){
 
 
 var chartData = {
-    "age": makeAge(15,75,10, "Age"),
+    "age": makeAge(15,85,10, "Age"),
     "time": makeTime(0,23,1, "Hour of ride"),
     "speed": makeSpeed(10,30,5, "Average speed (km/h)"),
     "distance": makeDistance(0,35,5, "Distance travelled (km)")
@@ -551,7 +551,7 @@ let chart;
 function initializeBarChart(variable) {
     var varData = chartData[variable];
     console.log(varData["func"]);
-    var datasts = getData(plotData(varData["func"]))
+    var datasts = getData(plotData(varData["func"]),variable)
     window.chart = new Chart(ctx, {
         // The type of chart we want to create
         type: 'bar',
@@ -608,9 +608,9 @@ function initializeBarChart(variable) {
 function initializeScatterChart(variable1,variable2) {
     var varData1 = chartData[variable1];
     var varData2 = chartData[variable2];
-    var datasts1 = plotData(varData1["data"])
+    var datasts1 = plotData(varData1["data"],variable1)
     console.log(datasts1);
-    var datasts2 = plotData(varData2["data"])
+    var datasts2 = plotData(varData2["data"],variable2)
     var scatterdataslower = createScatterData(datasts1[0],datasts2[0]);
     var scatterdatafaster = createScatterData(datasts1[1],datasts2[1]);
     window.chart = new Chart(ctx, {
@@ -711,27 +711,25 @@ function labels(d){
     return Array.from(new Array(24), (x,i) => i);
 };
 
-function getData(dt){
-    let dat = dt[0].concat(dt[1]);
-    let lbls = _.range(Math.min.apply(Math,dat),Math.max.apply(Math,dat));
-    let alldata = [];
-    console.log(dt.length);
-    for(j = 0; j < dt.length;j++){
-        console.log(j);
-        var dataDict = dt[j].reduce(function (acc, curr) {
-          if (typeof acc[curr] == 'undefined') {
-            acc[curr] = 1;
-          } else {
-            acc[curr] += 1;
-          }
-          return acc;
-        }, {});
-        var data = [];
-        for (var i = 0; i < lbls.length; i++){
-            if (!(i in Object.keys(dataDict))) {
-                dataDict[i] = 0;
-            }
-            data.push(dataDict[i]);
+function getData(dt,variable){
+    var varData = chartData[variable];
+    var lbls = _.range(1,((varData["max"]-varData["min"])/varData["step"])+1);
+    if (varData["missing"]){
+        lbls = _.range(0,((varData["max"]-varData["min"])/varData["step"])+1);
+    }
+    var alldata = [];
+
+    for (var i = 0; i < dt.length; i++) {
+        var counts = {};
+        for (var lb in lbls){
+            counts[lb] = 0;
+        }
+
+        console.log(dt[i]);
+        dt[i].forEach(((e) => counts[e] = counts[e] + 1));
+        data = [];
+        for (var key in counts){
+            data.push(counts[key]);
         }
         alldata.push(data);
     }

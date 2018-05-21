@@ -96,10 +96,12 @@ class Filter {
             heatMap.setRoutes(routes);
 
             // update graphs
-            // removeData(window.chart);
-            window.chart.data.datasets.forEach((dataset) => {
-                dataset.data = getData(plotData(baseFilter));
-            });
+            //removeData(window.chart);
+            for ( var i = 0; i < window.chart.data.datasets.length;i++){
+                console.log(i);
+                window.chart.data.datasets[i].data = getData(plotData(chartData["age"]["func"]),"age")[i];
+            }
+
             window.chart.update();
 
             irc.showIndividualRoutes();
