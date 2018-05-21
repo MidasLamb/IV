@@ -124,6 +124,10 @@
                 max-height: 500px;
             }
 
+            .graphs.control-panel {
+                max-height: none;
+            }
+
             #heatmap-controls{
             }
 
@@ -154,8 +158,9 @@
                 grid-column: 2;
             }
 
-            .switcher-one, .switcher-two, .switcher-three {
+            .switcher {
                 grid-column: 1;
+                border: 1px solid black;
             }
 
             .switcher-one { grid-row: 1}
@@ -461,10 +466,10 @@
                 </div>
             </div>
 
-            <div class="graphs">
-                <div class="switcher-one">Time plot</div>
-                <div class="switcher-two">Bar charts</div>
-                <div class="switcher-three">Scatter plots</div>
+            <div class="graphs control-panel">
+                <div class="switcher switcher-one">Time plot</div>
+                <div class="switcher switcher-two">Bar charts</div>
+                <div class="switcher switcher-three">Scatter plots</div>
                 <div class="graphs-outlet">
                     <div class="graph-outlet" id="outlet-one">
                         <div class="timeplot-container" style="position: relative; height: 100%; width: 100%; max-height: 100%; max-width: 100%;">
