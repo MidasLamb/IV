@@ -117,7 +117,25 @@
             .graphs {
                 grid-area: footer;
                 background: white;
+
+                display: grid;
+                grid-template-columns: 10% 90%;
+                grid-auto-rows: minmax(100px, auto);
+                height: 100%;
             }
+
+            .graphs-outlet {
+                grid-row: 1 / 3;
+                grid-column: 2;
+            }
+
+            .switcher-one, .switcher-two, .switcher-three {
+                grid-column: 1;
+            }
+
+            .switcher-one { grid-row: 1}
+            .switcher-two { grid-row: 2}
+            .switcher-three { grid-row: 3}
         </style>
     </head>
     <body>
@@ -250,7 +268,7 @@
                     <button onclick="imf.removeMapFilter()">Clear</button>
                 </div>
                 <div class="control-panel" id="data-filter">
-                    <lable><input type="checkbox" onclick="addFilter(this)">Only students</label>
+                    <label><input type="checkbox" onclick="addFilter(this)">Only students</label>
                 </div>
             </div>
 
@@ -303,12 +321,120 @@
                         </g>
                     </svg>
                 </div>
+                <div class="bar-item" data-target="graph-controls" onclick="show(this)">
+                    <svg
+                    xmlns:dc="http://purl.org/dc/elements/1.1/"
+                    xmlns:cc="http://creativecommons.org/ns#"
+                    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                    xmlns:svg="http://www.w3.org/2000/svg"
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+                    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+                    version="1.1"
+                    x="0px"
+                    y="0px"
+                    viewBox="470 0 400 400"
+                    xml:space="preserve"
+                    id="svg9"
+                    sodipodi:docname="graphicon.svg"
+                    inkscape:version="0.92.2 5c3e80d, 2017-08-06"><metadata
+                      id="metadata15"><rdf:RDF><cc:Work
+                          rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+                            rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+                      id="defs13"><marker
+                        inkscape:stockid="Arrow2Mstart"
+                        orient="auto"
+                        refY="0.0"
+                        refX="0.0"
+                        id="Arrow2Mstart"
+                        style="overflow:visible"
+                        inkscape:isstock="true"><path
+                          id="path899"
+                          style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round;stroke:#000000;stroke-opacity:1;fill:#000000;fill-opacity:1"
+                          d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+                          transform="scale(0.6) translate(0,0)" /></marker></defs><sodipodi:namedview
+                      pagecolor="#ffffff"
+                      bordercolor="#666666"
+                      borderopacity="1"
+                      objecttolerance="10"
+                      gridtolerance="10"
+                      guidetolerance="10"
+                      inkscape:pageopacity="0"
+                      inkscape:pageshadow="2"
+                      inkscape:window-width="1312"
+                      inkscape:window-height="791"
+                      id="namedview11"
+                      showgrid="false"
+                      inkscape:zoom="1.55"
+                      inkscape:cx="194.2154"
+                      inkscape:cy="235.41813"
+                      inkscape:window-x="20"
+                      inkscape:window-y="46"
+                      inkscape:window-maximized="0"
+                      inkscape:current-layer="Laag_3" /><style
+                      type="text/css"
+                      id="style2">
+                         .st4{fill:none;stroke-width:20;stroke-miterlimit:10;}
+                     </style><g
+                      id="Laag_3"
+                      style="display:inline"><path
+                        style="fill:none;stroke:#000000;stroke-width:20;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                        d="m 509.13913,64.639894 3.2835,271.262736 h 308.64929"
+                        id="path1157"
+                        inkscape:connector-curvature="0" /><path
+                        style="fill:none;stroke:#000000;stroke-width:15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                        d="m 517.58014,166.31749 103.44151,36.82272 128.83591,-64.51263 77.82665,30.15934"
+                        id="path1159"
+                        inkscape:connector-curvature="0"
+                        sodipodi:nodetypes="ccc" /><path
+                        sodipodi:type="star"
+                        style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:15;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                        id="path1163"
+                        sodipodi:sides="3"
+                        sodipodi:cx="750.82196"
+                        sodipodi:cy="258.90411"
+                        sodipodi:r1="19.308138"
+                        sodipodi:r2="13.715743"
+                        sodipodi:arg1="-0.023632809"
+                        sodipodi:arg2="1.0235647"
+                        inkscape:flatsided="true"
+                        inkscape:rounded="0"
+                        inkscape:randomized="0"
+                        d="m 770.12471,258.44785 -28.55899,17.40106 -0.79027,-33.43333 z"
+                        inkscape:transform-center-x="-5.8447903"
+                        inkscape:transform-center-y="-0.5729026"
+                        transform="matrix(0.93424712,0,0,0.83641023,119.56575,119.71033)" /><path
+                        transform="matrix(0.00183835,-0.87706317,0.97511907,0.00204843,256.91837,725.62406)"
+                        inkscape:transform-center-y="-5.5062574"
+                        inkscape:transform-center-x="0.68263638"
+                        d="m 770.12471,258.44785 -28.55899,17.40106 -0.79027,-33.43333 z"
+                        inkscape:randomized="0"
+                        inkscape:rounded="0"
+                        inkscape:flatsided="true"
+                        sodipodi:arg2="1.0235647"
+                        sodipodi:arg1="-0.023632809"
+                        sodipodi:r2="13.715743"
+                        sodipodi:r1="19.308138"
+                        sodipodi:cy="258.90411"
+                        sodipodi:cx="750.82196"
+                        sodipodi:sides="3"
+                        id="path1185"
+                        style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:15;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                        sodipodi:type="star" /></g></svg> 
+                </div>
             </div>
 
             <div class="graphs">
-                <div class="timeplot-container" style="position: relative; height: 100%; width: 100%; max-height: 100%; max-width: 100%;">
-                    <canvas id="timeplot"></canvas>
+                <div class="switcher-one"></div>
+                <div class="switcher-two"></div>
+                <div class="switcher-three"></div>
+                <div class="graphs-outlet">
+                    <div class="timeplot-container" style="position: relative; height: 100%; width: 100%; max-height: 100%; max-width: 100%;">
+                            <canvas id="timeplot"></canvas>
+                    </div>
                 </div>
+
+
             </div> 
 
         </div>
