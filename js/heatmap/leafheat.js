@@ -129,10 +129,10 @@ L.HeatLayer = (L.Layer ? L.Layer : L.Class).extend({
             L.point([0, 0]), size);
         var ctx = this._canvas.getContext('2d');
         ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
-        ctx.globalAlpha = this.options.globalAlpha;
+        // ctx.globalAlpha = this.options.globalAlpha;
         ctx.lineWidth = this.options.lineWidth;
         ctx.lineJoin = ctx.lineCap = 'round';
-        ctx.strokeStyle = "black";
+        ctx.strokeStyle = "#00000001";
 
         this._routes.forEach((route) => {
             ctx.beginPath();
@@ -147,9 +147,18 @@ L.HeatLayer = (L.Layer ? L.Layer : L.Class).extend({
             ctx.closePath();
         });
 
-        //ctx.filter = 'drop-shadow(0px 0px 1px black) drop-shadow(0px 0px 5px black)';
-
         var colored = ctx.getImageData(0, 0, this._canvas.width, this._canvas.height);
+        var highest = 0;
+        for (var i = 3; i < (this._canvas.width * this._canvas.height)* 4; i += 4){
+            if (colored.data[i] > highest){
+                highest = colored.data[i];
+            }
+        }
+        var scaler = 255 / highest;
+        for (var i = 3; i < (this._canvas.width * this._canvas.height)* 4; i += 4){
+            colored.data[i] = Math.round(scaler*colored.data[i]);
+        }
+
         this._colorize(colored.data, this.gradient(this.defaultGradient));
         ctx.putImageData(colored, 0, 0);
         

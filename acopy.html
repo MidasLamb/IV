@@ -87,6 +87,7 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                cursor: pointer;
             }
 
             #rightbar > .bar-item > svg {
@@ -210,6 +211,8 @@
                     heatMap.setOptions({show: false});
                 } else {
                     heatMap.setOptions({show: true});
+                    irc.disable();
+                    document.getElementById("irccheckbox").checked = false;
                 }
             }
             function optionsChange(slider, option){
@@ -237,8 +240,17 @@
                 if(element.checked) {
                     baseFilter.addFilter(Filter.filterProfession("student"), "students").applyFilters().call(Filter.updateRoutesAndGraphs());
                 } else {
-                    console.log("else");
                     baseFilter.removeFilterByName("students").applyFilters().call(Filter.updateRoutesAndGraphs());
+                }
+            }
+
+            function toggleIRC(element){
+                if (element.checked){
+                    irc.enable();
+                    heatMap.setOptions({show: false});
+                    document.getElementById("heatmapcheckbox").checked = false;
+                } else {
+                    irc.disable();
                 }
             }
 
@@ -254,15 +266,11 @@
                 <div class="control-panel" id="heatmap-controls">
                     <h2>Heatmap Controls</h2>
                     <div>
-                        <input type="checkbox" checked onchange="toggleHeatmap(this)"> Heatmap on
+                        <input id="heatmapcheckbox" type="checkbox" checked onchange="toggleHeatmap(this)"> Heatmap on
                     </div>
                     <div>
                         <h3>Line Width</h3>
                         1 <input type="range" min="1" max="30" value="3" onchange="optionsChange(this, 'lineWidth')"> 30 <span class="currentvalue"></span> 
-                    </div>
-                    <div>
-                        <h3>Global Alpha</h3>
-                        0 <input type="range" min="0" max="1" value="0.03" step="0.005" onchange="optionsChange(this, 'globalAlpha')" > 1 <span class="currentvalue"></span> 
                     </div>
                     <div>
                         <button onclick="heatMap.resetDefaultOptions()">Reset default</button>
@@ -277,6 +285,10 @@
                 </div>
                 <div class="control-panel" id="data-filter">
                     <lable><input type="checkbox" onclick="addFilter(this)">Only students</label>
+                </div>
+
+                <div class="control-panel" id="individual-routes">
+                    <lable><input type="checkbox" id="irccheckbox" onclick="toggleIRC(this)">Individual Routes</label>
                 </div>
             </div>
 

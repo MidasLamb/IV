@@ -101,6 +101,8 @@ class Filter {
                 dataset.data = getData(plotData(baseFilter));
             });
             window.chart.update();
+
+            irc.showIndividualRoutes();
         };
     }
     
