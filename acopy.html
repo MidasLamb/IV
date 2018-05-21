@@ -145,7 +145,7 @@
 
                 display: grid;
                 grid-template-columns: 10% 90%;
-                grid-auto-rows: minmax(100px, auto);
+                grid-template-rows: 33.333% 33.333% 33.333%;
                 height: 100%;
             }
 
@@ -462,28 +462,27 @@
             </div>
 
             <div class="graphs">
-                <div class="switcher-one">
-                    <div class="graphs-outlet">
+                <div class="switcher-one">Time plot</div>
+                <div class="switcher-two">Bar charts</div>
+                <div class="switcher-three">Scatter plots</div>
+                <div class="graphs-outlet">
+                    <div class="graph-outlet" id="outlet-one">
                         <div class="timeplot-container" style="position: relative; height: 100%; width: 100%; max-height: 100%; max-width: 100%;">
                             <canvas id="timeplot"></canvas>
                         </div>
                     </div>
+                    <div class="graph-outlet" id="outlet-two">
+                        <div id="plot-bar-1"></div>
+                        <div id="plot-bar-2"></div>
+                        <div id="plot-bar-3"></div>
+                    </div>
+                    <div class="graph-outlet" id="outlet-three">
+                        <div id="plot-scatter-1"></div>
+                        <div id="plot-scatter-2"></div>
+                        <div id="plot-scatter-3"></div>
+                    </div>
                 </div>
-                <div class="switcher-two">
-                    <div id="plot-bar-1"></div>
-                    <div id="plot-bar-2"></div>
-                    <div id="plot-bar-3"></div>
-                </div>
-                <div class="switcher-three">
-                    <div id="plot-scatter-1"></div>
-                    <div id="plot-scatter-2"></div>
-                    <div id="plot-scatter-3"></div>
-                </div>
-                </div>
-
-
             </div> 
-
         </div>
     <script>
 function makeAge(min,max,step,title){
