@@ -15,9 +15,33 @@
             body { margin:0; padding:0; font-family: sans-serif; overflow: hidden}
             #map { position:absolute; top:0; bottom:0; width:100%; }
             .fiets-route {
-                opacity: 0.0;
-                stroke: red;
+                stroke-opacity: 0.0;
                 cursor: pointer;
+            }
+            .car-route.active {
+                stroke-opacity: 1.0;
+            }
+
+            .hideimportant {
+                display: none !important;
+            }
+
+            .hide {
+                display: none;
+            }
+
+
+            .fiets-route:hover {
+                stroke: red !important;
+            }
+
+            .fiets-route.auto-faster{
+                stroke: yellow;
+                stroke-opacity: 1.0;
+            }
+            .fiets-route.auto-slower {
+                stroke-opacity: 1.0;
+                stroke: green;
             }
             #controls {
                 display: grid;
@@ -63,6 +87,7 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                cursor: pointer;
             }
 
             #rightbar > .bar-item > svg {
@@ -154,11 +179,14 @@
     <script src="/js/interactiveMapFilter.js"></script>
     <script src="/js/interactiveTimeFilter.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <script src="/js/individualRouteController.js"></script>
+    <script src='/js/lodash.js'></script>
     <script>
         function afterData() {
             // initialize map filter
             baseFilter = new Filter();
             imf = new InteractiveMapFilter(baseFilter);
+            irc = new IndividualRouteController(baseFilter);
 
             // initialize time filter
             const addTimeFilter = () => {
@@ -173,9 +201,7 @@
             }
 
             // initialize statistics
-            initializeChart(baseFilter);
-
-        console.log(getData(plotData()));
+            initializeScatterChart("age","speed");
         }
     </script>
 
@@ -202,6 +228,8 @@
                     heatMap.setOptions({show: false});
                 } else {
                     heatMap.setOptions({show: true});
+                    irc.disable();
+                    document.getElementById("irccheckbox").checked = false;
                 }
             }
             function optionsChange(slider, option){
@@ -229,8 +257,17 @@
                 if(element.checked) {
                     baseFilter.addFilter(Filter.filterProfession("student"), "students").applyFilters().call(Filter.updateRoutesAndGraphs());
                 } else {
-                    console.log("else");
                     baseFilter.removeFilterByName("students").applyFilters().call(Filter.updateRoutesAndGraphs());
+                }
+            }
+
+            function toggleIRC(element){
+                if (element.checked){
+                    irc.enable();
+                    heatMap.setOptions({show: false});
+                    document.getElementById("heatmapcheckbox").checked = false;
+                } else {
+                    irc.disable();
                 }
             }
 
@@ -246,15 +283,11 @@
                 <div class="control-panel" id="heatmap-controls">
                     <h2>Heatmap Controls</h2>
                     <div>
-                        <input type="checkbox" checked onchange="toggleHeatmap(this)"> Heatmap on
+                        <input id="heatmapcheckbox" type="checkbox" checked onchange="toggleHeatmap(this)"> Heatmap on
                     </div>
                     <div>
                         <h3>Line Width</h3>
                         1 <input type="range" min="1" max="30" value="3" onchange="optionsChange(this, 'lineWidth')"> 30 <span class="currentvalue"></span> 
-                    </div>
-                    <div>
-                        <h3>Global Alpha</h3>
-                        0 <input type="range" min="0" max="1" value="0.03" step="0.005" onchange="optionsChange(this, 'globalAlpha')" > 1 <span class="currentvalue"></span> 
                     </div>
                     <div>
                         <button onclick="heatMap.resetDefaultOptions()">Reset default</button>
@@ -269,6 +302,10 @@
                 </div>
                 <div class="control-panel" id="data-filter">
                     <label><input type="checkbox" onclick="addFilter(this)">Only students</label>
+                </div>
+
+                <div class="control-panel" id="individual-routes">
+                    <label><input type="checkbox" id="irccheckbox" onclick="toggleIRC(this)">Individual Routes</label>
                 </div>
             </div>
 
@@ -425,13 +462,23 @@
             </div>
 
             <div class="graphs">
-                <div class="switcher-one"></div>
-                <div class="switcher-two"></div>
-                <div class="switcher-three"></div>
-                <div class="graphs-outlet">
-                    <div class="timeplot-container" style="position: relative; height: 100%; width: 100%; max-height: 100%; max-width: 100%;">
+                <div class="switcher-one">
+                    <div class="graphs-outlet">
+                        <div class="timeplot-container" style="position: relative; height: 100%; width: 100%; max-height: 100%; max-width: 100%;">
                             <canvas id="timeplot"></canvas>
+                        </div>
                     </div>
+                </div>
+                <div class="switcher-two">
+                    <div id="plot-bar-1"></div>
+                    <div id="plot-bar-2"></div>
+                    <div id="plot-bar-3"></div>
+                </div>
+                <div class="switcher-three">
+                    <div id="plot-scatter-1"></div>
+                    <div id="plot-scatter-2"></div>
+                    <div id="plot-scatter-3"></div>
+                </div>
                 </div>
 
 
@@ -439,15 +486,89 @@
 
         </div>
     <script>
+function makeAge(min,max,step,title){
+    var curYear = (new Date()).getFullYear()
+    return {
+        "min": min,
+        "max": max,
+        "step": step,
+        "func": (e) => ((isNaN(parseInt(e.extradata["Year"]))) ?  0 : Math.ceil((curYear - parseInt(e.extradata["Year"])-min)/step)) ,
+        "data": (e) => ((isNaN(parseInt(e.extradata["Year"]))) ?  -1 : Math.ceil(curYear - parseInt(e.extradata["Year"]))),
+        "missing": true,
+        "title": title
+    }
+}
+function makeTime(min,max,step,title){
+    return {
+        "min": min,
+        "max": max,
+        "step": step,
+        "func": (e) => e.properties.STARTTIMEDATE.getHours(),
+        "data": (e) => e.properties.STARTTIMEDATE.getHours(),
+        "missing": false,
+        "title": title
+    }
+}
+function makeSpeed(min,max,step,title){
+    return {
+        "min": min,
+        "max": max,
+        "step": step,
+        "func": (e) => Math.ceil((e.properties.REAL_SPEED-min)/step),
+        "data": (e) => e.properties.REAL_SPEED,
+        "missing": false,
+        "title": title
+    }
+}
+function makeDistance(min,max,step, title){
+    return {
+        "min": min,
+        "max": max,
+        "step": step,
+        "func": (e) => Math.ceil((e.extradata[" Distance"]-min)/step),
+        "data": (e) => e.extradata["Distance"],
+        "missing": false,
+        "title": title
+    }
+}
+
+
+
+var chartData = {
+    "age": makeAge(15,75,10, "Age"),
+    "time": makeTime(0,23,1, "Hour of ride"),
+    "speed": makeSpeed(10,30,5, "Average speed (km/h)"),
+    "distance": makeDistance(0,35,5, "Distance travelled (km)")
+}
+
 var ctx = document.getElementById('timeplot').getContext('2d');
 
 let chart;
-function initializeChart() {
+function initializeBarChart(variable) {
+    var varData = chartData[variable];
+    console.log(varData["func"]);
+    var datasts = getData(plotData(varData["func"]))
     window.chart = new Chart(ctx, {
         // The type of chart we want to create
-        type: 'line',
+        type: 'bar',
         // Configuration options go here
         options: {
+            scales: {
+                xAxes: [{
+                    stacked: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: varData["title"]
+                    }
+                }],
+                yAxes: [{
+                    stacked: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: "Amount"
+                    }
+                }]
+            },
             legend: {
                 display: false
             },
@@ -465,26 +586,120 @@ function initializeChart() {
     
         // The data for our dataset
         data: {
-            labels: labels(plotData()),
+            labels: labels2(varData["min"],varData["max"],varData["step"],varData["missing"]),
             datasets: [{
-                backgroundColor: 'rgb(255, 99, 132)',
-                borderColor: 'rgb(255, 99, 132)',
-                data: getData(plotData()),
+                backgroundColor: 'rgb(168, 45, 53,0.4)',
+                borderColor: 'rgb(168, 45, 53)',
+                data: datasts[0]
+            },
+            {
+                backgroundColor: 'rgb(68, 142, 125,0.4)',
+                borderColor: 'rgb(68, 142, 125)',
+                data: datasts[1]
             }]
         }
     });
 }
 
+function initializeScatterChart(variable1,variable2) {
+    var varData1 = chartData[variable1];
+    var varData2 = chartData[variable2];
+    var datasts1 = plotData(varData1["data"])
+    console.log(datasts1);
+    var datasts2 = plotData(varData2["data"])
+    var scatterdataslower = createScatterData(datasts1[0],datasts2[0]);
+    var scatterdatafaster = createScatterData(datasts1[1],datasts2[1]);
+    window.chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'scatter',
+        // Configuration options go here
+        options: {
+            showLines: false,
+            scales: {
+                xAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: varData1["title"]
+                    }
+                }],
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: varData2["title"]
+                    }
+                }]
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point : {
+                    radius: 2
+                }
+            },
+            layout: {
+                padding: {
+                 top: 0,
+                 right: 0,
+                 bottom: 5,
+                 left: 0
+                }
+            },
+            maintainAspectRatio: false,
+            responsive: true
+        },
 
-function plotData(){
-    var times = []
+        // The data for our dataset
+        data: {
+            datasets: [{
+                backgroundColor: 'rgb(68, 142, 125,0.3)',
+                borderColor: 'rgb(68, 142, 125,0.3)',
+                data: scatterdatafaster
+            },
+            {
+                backgroundColor: 'rgb(168, 45, 53,0.3)',
+                borderColor: 'rgb(168, 45, 53,0.3)',
+                data: scatterdataslower
+            },
+            ]
+        }
+    });
+}
+
+function createScatterData(ar1, ar2){
+    var data = [];
+    for (i=0;i<ar1.length;i++){
+        data.push({x: ar1[i], y: ar2[i]});
+    }
+    return data
+}
+
+function plotData(f){
+    var datafaster = [];
+    var dataslower = [];
     baseFilter.call(function(d){
         d.each((e)=>{
-            times.push(e.properties.STARTTIMEDATE.getHours())
+            if (e.properties.fasterThanCar){
+                datafaster.push(f(e))
+            }
+            else{
+                dataslower.push(f(e))
+            }
         });
     });
-    return times;
+    return [dataslower,datafaster];
 };
+function labels2(min,max,step,missing){
+    var range = _.range(min,max+1,step);
+    var lab = []
+    if (missing){
+        lab.push("unknown");
+    }
+    for (i = 0; i < range.length-1; i++) {
+        lab.push(range[i].toString()+"-"+range[i+1].toString())
+    }
+    return lab
+}
 
 function labels(d){
     var max = Math.max.apply(Math, d);
@@ -492,25 +707,32 @@ function labels(d){
     return Array.from(new Array(24), (x,i) => i);
 };
 
-function getData(d){
-
-    var dataDict = d.reduce(function (acc, curr) {
-      if (typeof acc[curr] == 'undefined') {
-        acc[curr] = 1;
-      } else {
-        acc[curr] += 1;
-      }
-      return acc;
-    }, {})
-    var data = []
-    let lbls = labels(d);
-    for (var i = 0; i < lbls.length; i++){
-        if (!(i in Object.keys(dataDict))) {
-            dataDict[i] = 0;
+function getData(dt){
+    let dat = dt[0].concat(dt[1]);
+    let lbls = _.range(Math.min.apply(Math,dat),Math.max.apply(Math,dat));
+    let alldata = [];
+    console.log(dt.length);
+    for(j = 0; j < dt.length;j++){
+        console.log(j);
+        var dataDict = dt[j].reduce(function (acc, curr) {
+          if (typeof acc[curr] == 'undefined') {
+            acc[curr] = 1;
+          } else {
+            acc[curr] += 1;
+          }
+          return acc;
+        }, {});
+        var data = [];
+        for (var i = 0; i < lbls.length; i++){
+            if (!(i in Object.keys(dataDict))) {
+                dataDict[i] = 0;
+            }
+            data.push(dataDict[i]);
         }
-        data.push(dataDict[i]);
+        alldata.push(data);
     }
-    return data;
+    console.log(alldata);
+    return alldata;
 };
 
 

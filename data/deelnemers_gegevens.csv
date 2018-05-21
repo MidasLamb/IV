@@ -1,4 +1,4 @@
-﻿TripID, Start, Distance, TrackType, Sex, Year, Profession, Frequent User, ZIP, Source
+﻿TripID,Start,Distance,TrackType,Sex,Year,Profession,Frequent User,ZIP,Source
 5545f92b88c537476dd21093,Sun  03 May 2015 08:35:15 GMT,7.11,urban bicycle,F,1997,student,yes,,cy-mobile
 5546000b88c537e97cd21093,Sun  03 May 2015 10:32:50 GMT,7.14,urban bicycle,F,1997,student,yes,,cy-mobile
 55463c7588c537731ad21093,Sun  03 May 2015 15:02:15 GMT,4.14,urban bicycle,F,1997,student,yes,,cy-mobile

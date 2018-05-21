@@ -65,6 +65,14 @@ class Filter {
         this.currentData.call(a);
     }
 
+    eachStartData(a){
+        this.beginData.each(a);
+    }
+
+    callStartData(a){
+        this.beginData.call(a);
+    }
+
     /*
     *   Usefull actions
     */
@@ -93,6 +101,8 @@ class Filter {
                 dataset.data = getData(plotData(baseFilter));
             });
             window.chart.update();
+
+            irc.showIndividualRoutes();
         };
     }
     
@@ -100,6 +110,12 @@ class Filter {
     /*
     *   Usefull filters
     */
+
+    static filterTripID(tripID){
+        return (d) => {
+            return d.properties.TripID == tripID;
+        }
+    }
 
     static filterStartNear(start, radius){
         return (d)=>{
@@ -205,6 +221,17 @@ class Filter {
         }
     }
 
+    static filterCarSlower(){
+        return (d) => {
+            return d.properties.fasterThanCar;
+        }
+    }
+
+    static filterCarFaster(){
+        return (d) => {
+            return !d.properties.fasterThanCar;
+        }
+    }
     
 }
 
