@@ -356,8 +356,8 @@ function makeAge(min,max,step,title){
         "min": min,
         "max": max,
         "step": step,
-        "func": (e) => ((isNaN(parseInt(e.extradata[" Year"]))) ?  0 : Math.ceil((curYear - parseInt(e.extradata[" Year"])-min)/step)) ,
-        "data": (e) => ((isNaN(parseInt(e.extradata[" Year"]))) ?  0 : Math.ceil(curYear - parseInt(e.extradata[" Year"]))),
+        "func": (e) => ((isNaN(parseInt(e.extradata["Year"]))) ?  0 : Math.ceil((curYear - parseInt(e.extradata["Year"])-min)/step)) ,
+        "data": (e) => ((isNaN(parseInt(e.extradata["Year"]))) ?  -1 : Math.ceil(curYear - parseInt(e.extradata["Year"]))),
         "missing": true,
         "title": title
     }
@@ -390,7 +390,7 @@ function makeDistance(min,max,step, title){
         "max": max,
         "step": step,
         "func": (e) => Math.ceil((e.extradata[" Distance"]-min)/step),
-        "data": (e) => e.extradata[" Distance"],
+        "data": (e) => e.extradata["Distance"],
         "missing": false,
         "title": title
     }
