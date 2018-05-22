@@ -12,6 +12,10 @@
         <link rel="stylesheet" href="http://datasets.antwerpen.be/v4/public/css/leaflet.css?v=1.0" />
         <link type="text/css" rel="stylesheet" href="noUiSlider.11.1.0/nouislider.min.css"/>
         <style>
+            * {
+                box-sizing: border-box;
+            }
+
             body { margin:0; padding:0; font-family: sans-serif; overflow: hidden}
             #map { position:absolute; top:0; bottom:0; width:100%; }
             .fiets-route {
@@ -88,13 +92,16 @@
                 justify-content: center;
                 align-items: center;
                 cursor: pointer;
+                padding: 3px 0;
             }
 
             #rightbar > .bar-item > svg {
                 max-width: 70px;
                 max-height: 70px;
-                width: 70px;
+                width: 100%;
+                height: 100%;
                 stroke: black;
+
             }
 
             #rightbar > .bar-item.inactive {
@@ -467,29 +474,62 @@
             </div>
 
             <div class="graphs control-panel">
-                <div class="switcher switcher-one">Time plot</div>
-                <div class="switcher switcher-two">Bar charts</div>
-                <div class="switcher switcher-three">Scatter plots</div>
-                <div class="graphs-outlet">
-                    <div class="graph-outlet" id="outlet-one">
+                <div class="switcher switcher-one" data-target="outlet-one">Time plot</div>
+                <div class="switcher switcher-two" data-target="outlet-two">Bar charts</div>
+                <div class="switcher switcher-three" data-target="outlet-three">Scatter plots</div>
+                <div class="graphs-outlet active" id="outlet-one">
+                    <div> 
                         <div class="timeplot-container" style="position: relative; height: 100%; width: 100%; max-height: 100%; max-width: 100%;">
                             <canvas id="timeplot"></canvas>
                         </div>
                     </div>
-                    <div class="graph-outlet" id="outlet-two">
-                        <div id="plot-bar-1"></div>
-                        <div id="plot-bar-2"></div>
-                        <div id="plot-bar-3"></div>
-                    </div>
-                    <div class="graph-outlet" id="outlet-three">
-                        <div id="plot-scatter-1"></div>
-                        <div id="plot-scatter-2"></div>
-                        <div id="plot-scatter-3"></div>
-                    </div>
+
                 </div>
-            </div> 
-        </div>
-    <script>
+                <div class="graphs-outlet" id="outlet-two" style="display:none">
+                    <div class="subplot-1" id="plot-bar-1" ></div>
+                    <div class="subplot-2" id="plot-bar-2"></div>
+                    <div class="subplot-3" id="plot-bar-3"></div>
+                </div>
+                <div class="graphs-outlet" id="outlet-three" style="display:none">
+                    <div class="subplot-1" id="plot-scatter-1"></div>
+                    <div class="subplot-2" id="plot-scatter-2"></div>
+                    <div class="subplot-3" id="plot-scatter-3"></div>
+                </div>
+            </div>
+ <script>
+
+
+let switchers = document.querySelectorAll('.switcher');
+        
+function clickListener (e) {
+    // e.target holds the clicked switcher
+    let outlets = document.querySelectorAll('.graphs-outlet');
+    for (let i = 0; i < outlets.length; i++) {
+        let curOut = outlets[i];
+        if (curOut.id == e.target.dataset.target) {
+            curOut.style.display = 'block';
+        } else {
+            curOut.style.display = 'none';
+        } 
+    }
+    // attach "active" class
+    for (let i = 0; i < switchers.length; i++) {
+        let curSwitcher = switchers[i]
+        if (curSwitcher.dataset.target == e.target.dataset.target) {
+           curSwitcher.classList.add('active');
+            
+        } else {
+           curSwitcher.classList.remove('active');
+        }
+    }
+}
+
+// attach listeners
+for (let i = 0; i < switchers.length; i++) {
+    switchers[i].addEventListener('click', clickListener);
+}
+
+
 function makeAge(min,max,step,title){
     var curYear = (new Date()).getFullYear()
     return {
