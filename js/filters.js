@@ -111,11 +111,16 @@ class Filter {
             //removeData(window.chart);
             var plotkeys = Object.keys(window.plotcharts);
             plotkeys.forEach((key)=> {
-                var plotdata = getData(plotData(chartData[key]["func"]),key)
+                var plotdata = getData(plotData(chartData[key]["func"]),key);
+                var datasum = plotdata[0].map(function (num, idx) {
+                   return num + plotdata[1][idx];
+                });
+                var maxsum = Math.max.apply(Math,datasum);
+                window.plotcharts[key].options.scales.yAxes[0].ticks.max = maxsum;
+                window.plotcharts[key].update();
                 for ( var i = 0; i < window.plotcharts[key].data.datasets.length;i++){
                     window.plotcharts[key].data.datasets[i].data = plotdata[i];
                 }
-                window.plotcharts[key].update();
             });
 
             var scatterkeys = Object.keys(window.scattercharts);
@@ -125,23 +130,32 @@ class Filter {
                 var varData2 = chartData[variables[1]];
                 var datasts1 = plotData(varData1["data"],variables[0])
                 var datasts2 = plotData(varData2["data"],variables[1])
+                var datasum1 = datasts1[0].map(function (num, idx) {
+                   return num + datasts1[1][idx];
+                });
+                var datasum2 = datasts2[0].map(function (num, idx) {
+                   return num + datasts2[1][idx];
+                });
+                var maxsum1 = Math.max.apply(Math,datasum1);
+                var maxsum2 = Math.max.apply(Math,datasum2);
+                window.scattercharts[key].options.scales.xAxes[0].ticks.max = maxsum1;
+                window.scattercharts[key].options.scales.yAxes[0].ticks.max = maxsum2;
+                window.scattercharts[key].update();
                 var scatterdataslower = createScatterData(datasts1[0],datasts2[0]);
                 var scatterdatafaster = createScatterData(datasts1[1],datasts2[1]);
                 var scatterdata = [scatterdatafaster,scatterdataslower];
-                console.log(scatterdata);
                 for ( var i = 0; i < window.scattercharts[key].data.datasets.length;i++){
                     window.scattercharts[key].data.datasets[i].data = scatterdata[i];
                 }
-                window.scattercharts[key].update();
             });
-//
-//
-//            for ( var i = 0; i < window.chart.data.datasets.length;i++){
-//                console.log(i);
-//                window.chart.data.datasets[i].data = getData(plotData(chartData["age"]["func"]),"age")[i];
-//            }
-//
-//            window.chart.update();
+
+            plotkeys.forEach((key) => {
+                setTimeout(()=> {window.plotcharts[key].update()},1000);
+            })
+            scatterkeys.forEach((key) => {
+                setTimeout(()=> {window.scattercharts[key].update()},1000);
+            })
+
 
         };
     }

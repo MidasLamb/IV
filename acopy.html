@@ -813,7 +813,7 @@ function makeTime(min,max,step,title){
         "min": min,
         "max": max,
         "step": step,
-        "func": (e) => e.properties.STARTTIMEDATE.getHours(),
+        "func": (e) => e.properties.STARTTIMEDATE.getHours()+1,
         "data": (e) => e.properties.STARTTIMEDATE.getHours(),
         "missing": false,
         "title": title
@@ -846,15 +846,14 @@ function makeDistance(min,max,step, title){
 
 var chartData = {
     "age": makeAge(15,85,10, "Age"),
-    "time": makeTime(0,23,1, "Hour of ride"),
-    "speed": makeSpeed(10,30,5, "Average speed (km/h)"),
-    "distance": makeDistance(0,35,5, "Distance travelled (km)")
+    "time": makeTime(0,24,1, "Hour of ride"),
+    "speed": makeSpeed(5,35,5, "Average speed (km/h)"),
+    "distance": makeDistance(0,45,5, "Distance travelled (km)")
 }
 var plotcharts = {};
 
 function initializeLineChart(ctx, variable) {
     var varData = chartData[variable];
-    console.log(varData["func"]);
     var datasts = getData(plotData(varData["func"]),variable)
     window.plotcharts[variable] = new Chart(ctx, {
         // The type of chart we want to create
@@ -969,7 +968,6 @@ function initializeScatterChart(ctx, variable1,variable2) {
     var varData1 = chartData[variable1];
     var varData2 = chartData[variable2];
     var datasts1 = plotData(varData1["data"],variable1)
-    console.log(datasts1);
     var datasts2 = plotData(varData2["data"],variable2)
     var scatterdataslower = createScatterData(datasts1[0],datasts2[0]);
     var scatterdatafaster = createScatterData(datasts1[1],datasts2[1]);
@@ -1081,11 +1079,10 @@ function getData(dt,variable){
 
     for (var i = 0; i < dt.length; i++) {
         var counts = {};
-        for (var lb in lbls){
+        lbls.forEach((lb)=>
+        {
             counts[lb] = 0;
-        }
-
-        console.log(dt[i]);
+        });
         dt[i].forEach(((e) => counts[e] = counts[e] + 1));
         data = [];
         for (var key in counts){
@@ -1093,7 +1090,6 @@ function getData(dt,variable){
         }
         alldata.push(data);
     }
-    console.log(alldata);
     return alldata;
 };
 
