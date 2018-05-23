@@ -155,12 +155,15 @@
                 display: grid;
                 grid-template-columns: 85% 15%;
                 grid-template-rows: 33.333% 33.333% 33.333%;
+
+                grid-template-areas: "graph switcher" 
+                                    "graph switcher"
+                                    "graph switcher";
                 height: 100%;
             }
 
             .graphs-outlet {
-                grid-row: 1 / 3;
-                grid-column: 1;
+                grid-area: graph;
 
                 display: grid;
                 grid-template-columns: 33.333% 33.333% 33.333%;
@@ -277,9 +280,7 @@
                     showHeatmap();
                     irc.disable();
                     document.getElementById("irccheckbox").checked = false;
-                    pointHeatMap.removeFrom(map);
-                    document.getElementById("pointmapend").checked = false;
-                    document.getElementById("pointmapstart").checked = false;
+                    hidePointMap();
                 }
             }
 
@@ -292,6 +293,19 @@
             function showHeatmap() {
                 heatMap.setOptions({show: true});
                 document.getElementById("route-controls").style.display = "";
+                document.getElementById("point-controls").style.display = "none";
+            }
+
+            function showPointMap(){
+                pointHeatMap.addTo(map);
+                document.getElementById("point-controls").style.display = "";
+            }
+
+            function hidePointMap(){
+                pointHeatMap.removeFrom(map);
+                document.getElementById("point-controls").style.display = "none";
+                document.getElementById("pointmapend").checked = false;
+                document.getElementById("pointmapstart").checked = false;
             }
 
             function togglePointHeatmap(e, num){
@@ -301,8 +315,7 @@
 
                     baseFilter.call(Filter.updateRoutesAndGraphs());
 
-                    pointHeatMap.addTo(map);
-                    
+                    showPointMap();                    
                     hideHeatmap();
                     document.getElementById("pointmapend").checked = false;
                     irc.disable();
@@ -310,7 +323,8 @@
                 } else if (e.checked && num == 1){
                     showStartPoints = false;
                     baseFilter.call(Filter.updateRoutesAndGraphs());
-                    pointHeatMap.addTo(map);
+
+                    showPointMap();
 
                     hideHeatmap();
                     document.getElementById("pointmapstart").checked = false;
@@ -365,9 +379,7 @@
                 if (element.checked){
                     irc.enable();
                     hideHeatmap();
-                    pointHeatMap.removeFrom(map);
-                    document.getElementById("pointmapend").checked = false;
-                    document.getElementById("pointmapstart").checked = false;
+                    hidePointMap();
                 } else {
                     irc.disable();
                 }
@@ -407,6 +419,10 @@
                     baseFilter.addFilter(Filter.filterCarFaster(), "carcompare").applyFilters().call(Filter.updateRoutesAndGraphs());
                 }
             }
+            
+            function changePointRadius(e){
+                pointHeatMap.setOptions({"radius": +e.value});
+            }
 
 
         </script>
@@ -436,6 +452,15 @@
                         <div>
                             <h3>Line Width</h3>
                             Narrow <input type="range" min="1" max="30" value="3" onchange="optionsChange(this, 'lineWidth')"> Wide
+                        </div>
+                        <div>
+                            <button onclick="heatMap.resetDefaultOptions()">Reset default</button>
+                        </div>
+                    </div>
+                    <div id="point-controls" style="display: none";>
+                        <div>
+                            <h3>Point Radius</h3>
+                            Narrow <input type="range" min="1" max="30" value="25" onchange="changePointRadius(this)"> Wide
                         </div>
                         <div>
                             <button onclick="heatMap.resetDefaultOptions()">Reset default</button>
