@@ -159,7 +159,8 @@ L.HeatLayer2 = (L.Layer ? L.Layer : L.Class).extend({
             colored.data[i] = Math.round(scaler*colored.data[i]);
         }
 
-        document.getElementById("heatmapmax").innerHTML = highest;
+        if (document.getElementById("heatmapmax"))
+            document.getElementById("heatmapmax").innerHTML = highest;
 
         this._colorize(colored.data, this.gradient(this.defaultGradient));
         ctx.putImageData(colored, 0, 0);

@@ -165,12 +165,14 @@
 
                 display: grid;
 
-                grid-template-rows: 1fr 1fr 1fr;
+                grid-template-rows: 20px 1fr 1fr 1fr 20px;
                 grid-template-columns: 85% 15%;
 
-                grid-template-areas: "graph switcher"
-                                        "graph switcher"
-                                        "graph switcher";
+                grid-template-areas: "graph legend"
+                                        "graph switcherone"
+                                        "graph switchertwo"
+                                        "graph switcherthree"
+                                        "graph padding";
                 height: 100%;
                 z-index: 10;
             }
@@ -189,6 +191,14 @@
 
             #outlet-one.show { 
                 display: block;
+            }
+
+            .legend {
+                grid-area: legend;
+                font-size: 0.8em;
+                text-align: center;
+                display: flex;
+                justify-content: center;
             }
 
             .switcher {
@@ -216,9 +226,9 @@
                 color: #111;
             }
 
-            .switcher-one { grid-row: 1}
-            .switcher-two { grid-row: 2}
-            .switcher-three { grid-row: 3}
+            .switcher-one { grid-area: switcherone}
+            .switcher-two { grid-area: switchertwo}
+            .switcher-three { grid-area: switcherthree}
 
             .graphs-outlet > div {
                 grid-row: 1;
@@ -602,7 +612,9 @@
                     </div>
                     <div id="indi-controls" style="display: none">
                         <h3>Legend</h3>
-                        <span style="width:10px; height: 10px; background-color: red; display: inline-block;"></span> <span style="width:10px; height: 10px; background-color: #3388ff; display: inline-block;"></span> Bike </br>
+                        <span style="width:10px; height: 10px; background-color: orange; display: inline-block;"></span> Bike </br>
+                        <span style="width:10px; height: 10px; background-color: #4286f4; display: inline-block;"></span> Bike faster than car </br>
+                        <span style="width:10px; height: 10px; background-color: red; display: inline-block;"></span> Bike slower than car </br>
                         <span style="width:10px; height: 10px; background-color: black; display: inline-block;"></span> Car with same start and end points 
                     </div>
                 </div>
@@ -735,6 +747,18 @@
             </div>
 
             <div class="graphs control-panel" id="graphs">
+                <div class="legend">
+                    <table style="border-spacing: 0;">
+                        <tr>
+                            <td style="text-align: right; border-right: 1px black solid">
+                                Bike faster than car <span style="width:10px; height: 10px; background-color: #4286f4; display: inline-block;"></span>
+                            </td>
+                            <td style="text-align: left;  border-left: 1px black solid">
+                                <span style="width:10px; height: 10px; background-color: red; display: inline-block;"></span> Bike slower than car
+                            </td>
+                        </tr>
+                    </table>
+                </div>
                 <div class="switcher switcher-one active" data-target="outlet-one">Time plot</div>
                 <div class="switcher switcher-two" data-target="outlet-two">Bar charts</div>
                 <div class="switcher switcher-three" data-target="outlet-three">Scatter plots</div>

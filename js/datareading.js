@@ -45,13 +45,17 @@ function onEachFeature(feature, layer) {
 
 function mouseover(f, e){
     f.properties.leafletPath.bringToFront();
-    f.properties.leafletPath.setStyle({weight: 7, color:"red"});
+    if (f.properties.fasterThanCar){
+        f.properties.leafletPath.setStyle({weight: 7, color:"#4286f4"});
+    } else {
+        f.properties.leafletPath.setStyle({weight: 7, color:"red"});
+    }
     f.carroute.leafletPath.addTo(map);
 }
 
 function mouseout(f, e) {
     f.carroute.leafletPath.removeFrom(map);
-    f.properties.leafletPath.setStyle({weight: 3, color:"#3388ff"});
+    f.properties.leafletPath.setStyle({weight: 3, color:"orange"});
 }
 
 function parseFietsRoutes() {
@@ -62,10 +66,12 @@ function parseFietsRoutes() {
                 weight: 3
             }
             var carslower = {
-                className: "fiets-route hide"
+                className: "fiets-route hide",
+                color: "orange"
             }
             var carfaster = {
-                className: "fiets-route hide"
+                className: "fiets-route hide",
+                color: "orange"
             }
 
             data.features.forEach(element => {
