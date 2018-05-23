@@ -58,6 +58,7 @@ function mouseout(f, e) {
     f.properties.leafletPath.setStyle({weight: 3, color:"orange"});
 }
 
+
 function parseFietsRoutes() {
     d3.json("/data/fiets_routes_CC.geojson", function(data){
             var car = {
@@ -95,8 +96,18 @@ function parseFietsRoutes() {
                     c[1] = or;
                 });
                 element.properties.leafletPath = L.polyline(element.geometry.coordinates, style);
-                element.properties.leafletPath.on('mouseover', (e) => mouseover(element, e))
-                element.properties.leafletPath.on('mouseout', (e) => mouseout(element, e))
+                element.properties.leafletPath.on('mouseover', (e) => mouseover(element, e));
+                element.properties.leafletPath.on('mouseout', (e) => mouseout(element, e));
+                console.log(element);
+                element.properties.leafletPath.bindPopup( "Start time: " + element.properties.STARTTIME+ "<br>" + 
+                    "Stop time: " + element.properties.STOPTIME+ "<br>" +
+                    "Faster than Car: " + (element.properties.fasterThanCar ? "Yes" : "No") + "<br>" +
+                    "Sex: " + element.extradata.Sex + "<br>" +
+                    "Birth Year: " + element.extradata.Year + "<br>" +
+                    "Profession: " + element.extradata.Profession + "<br>" + 
+                    "Start coord(lat, lng): [" + element.geometry.coordinates[0][0] + "," + element.geometry.coordinates[0][1] + "]" + "<br>" +
+                    "End coord(lat, lng): [" + element.geometry.coordinates[element.geometry.coordinates.length - 1][0] + "," + element.geometry.coordinates[element.geometry.coordinates.length - 1][1] + "]" + "<br>"
+                    );
                 heatMap.addRoute(element.geometry.coordinates);
             });
 
