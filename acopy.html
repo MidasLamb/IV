@@ -12,6 +12,10 @@
         <link rel="stylesheet" href="http://datasets.antwerpen.be/v4/public/css/leaflet.css?v=1.0" />
         <link type="text/css" rel="stylesheet" href="noUiSlider.11.1.0/nouislider.min.css"/>
         <style>
+            * {
+                box-sizing: border-box;
+            }
+
             body { margin:0; padding:0; font-family: sans-serif; overflow: hidden}
             #map { position:absolute; top:0; bottom:0; width:100%; }
             .fiets-route {
@@ -88,13 +92,16 @@
                 justify-content: center;
                 align-items: center;
                 cursor: pointer;
+                padding: 3px 0;
             }
 
             #rightbar > .bar-item > svg {
                 max-width: 70px;
                 max-height: 70px;
-                width: 70px;
+                width: 100%;
+                height: 100%;
                 stroke: black;
+
             }
 
             #rightbar > .bar-item.inactive {
@@ -124,6 +131,10 @@
                 max-height: 500px;
             }
 
+            .graphs.control-panel {
+                max-height: none;
+            }
+
             #heatmap-controls{
             }
 
@@ -142,7 +153,26 @@
             .graphs {
                 grid-area: footer;
                 background: white;
+
+                display: grid;
+                grid-template-columns: 10% 90%;
+                grid-template-rows: 33.333% 33.333% 33.333%;
+                height: 100%;
             }
+
+            .graphs-outlet {
+                grid-row: 1 / 3;
+                grid-column: 2;
+            }
+
+            .switcher {
+                grid-column: 1;
+                border: 1px solid black;
+            }
+
+            .switcher-one { grid-row: 1}
+            .switcher-two { grid-row: 2}
+            .switcher-three { grid-row: 3}
         </style>
     </head>
     <body>
@@ -183,7 +213,7 @@
             }
 
             // initialize statistics
-            initializeScatterChart("age","speed");
+            initializeBarChart("age");
         }
     </script>
 
@@ -404,16 +434,166 @@
                         </g>
                     </svg>
                 </div>
+                <div class="bar-item" data-target="graph-controls" onclick="show(this)">
+                    <svg
+                    xmlns:dc="http://purl.org/dc/elements/1.1/"
+                    xmlns:cc="http://creativecommons.org/ns#"
+                    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                    xmlns:svg="http://www.w3.org/2000/svg"
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+                    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+                    version="1.1"
+                    x="0px"
+                    y="0px"
+                    viewBox="470 0 400 400"
+                    xml:space="preserve"
+                    id="svg9"
+                    sodipodi:docname="graphicon.svg"
+                    inkscape:version="0.92.2 5c3e80d, 2017-08-06"><metadata
+                      id="metadata15"><rdf:RDF><cc:Work
+                          rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+                            rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+                      id="defs13"><marker
+                        inkscape:stockid="Arrow2Mstart"
+                        orient="auto"
+                        refY="0.0"
+                        refX="0.0"
+                        id="Arrow2Mstart"
+                        style="overflow:visible"
+                        inkscape:isstock="true"><path
+                          id="path899"
+                          style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round;stroke:#000000;stroke-opacity:1;fill:#000000;fill-opacity:1"
+                          d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+                          transform="scale(0.6) translate(0,0)" /></marker></defs><sodipodi:namedview
+                      pagecolor="#ffffff"
+                      bordercolor="#666666"
+                      borderopacity="1"
+                      objecttolerance="10"
+                      gridtolerance="10"
+                      guidetolerance="10"
+                      inkscape:pageopacity="0"
+                      inkscape:pageshadow="2"
+                      inkscape:window-width="1312"
+                      inkscape:window-height="791"
+                      id="namedview11"
+                      showgrid="false"
+                      inkscape:zoom="1.55"
+                      inkscape:cx="194.2154"
+                      inkscape:cy="235.41813"
+                      inkscape:window-x="20"
+                      inkscape:window-y="46"
+                      inkscape:window-maximized="0"
+                      inkscape:current-layer="Laag_3" /><style
+                      type="text/css"
+                      id="style2">
+                         .st4{fill:none;stroke-width:20;stroke-miterlimit:10;}
+                     </style><g
+                      id="Laag_3"
+                      style="display:inline"><path
+                        style="fill:none;stroke:#000000;stroke-width:20;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                        d="m 509.13913,64.639894 3.2835,271.262736 h 308.64929"
+                        id="path1157"
+                        inkscape:connector-curvature="0" /><path
+                        style="fill:none;stroke:#000000;stroke-width:15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                        d="m 517.58014,166.31749 103.44151,36.82272 128.83591,-64.51263 77.82665,30.15934"
+                        id="path1159"
+                        inkscape:connector-curvature="0"
+                        sodipodi:nodetypes="ccc" /><path
+                        sodipodi:type="star"
+                        style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:15;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                        id="path1163"
+                        sodipodi:sides="3"
+                        sodipodi:cx="750.82196"
+                        sodipodi:cy="258.90411"
+                        sodipodi:r1="19.308138"
+                        sodipodi:r2="13.715743"
+                        sodipodi:arg1="-0.023632809"
+                        sodipodi:arg2="1.0235647"
+                        inkscape:flatsided="true"
+                        inkscape:rounded="0"
+                        inkscape:randomized="0"
+                        d="m 770.12471,258.44785 -28.55899,17.40106 -0.79027,-33.43333 z"
+                        inkscape:transform-center-x="-5.8447903"
+                        inkscape:transform-center-y="-0.5729026"
+                        transform="matrix(0.93424712,0,0,0.83641023,119.56575,119.71033)" /><path
+                        transform="matrix(0.00183835,-0.87706317,0.97511907,0.00204843,256.91837,725.62406)"
+                        inkscape:transform-center-y="-5.5062574"
+                        inkscape:transform-center-x="0.68263638"
+                        d="m 770.12471,258.44785 -28.55899,17.40106 -0.79027,-33.43333 z"
+                        inkscape:randomized="0"
+                        inkscape:rounded="0"
+                        inkscape:flatsided="true"
+                        sodipodi:arg2="1.0235647"
+                        sodipodi:arg1="-0.023632809"
+                        sodipodi:r2="13.715743"
+                        sodipodi:r1="19.308138"
+                        sodipodi:cy="258.90411"
+                        sodipodi:cx="750.82196"
+                        sodipodi:sides="3"
+                        id="path1185"
+                        style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:15;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                        sodipodi:type="star" /></g></svg> 
+                </div>
             </div>
 
-            <div class="graphs">
-                <div class="timeplot-container" style="position: relative; height: 100%; width: 100%; max-height: 100%; max-width: 100%;">
-                    <canvas id="timeplot"></canvas>
-                </div>
-            </div> 
+            <div class="graphs control-panel">
+                <div class="switcher switcher-one" data-target="outlet-one">Time plot</div>
+                <div class="switcher switcher-two" data-target="outlet-two">Bar charts</div>
+                <div class="switcher switcher-three" data-target="outlet-three">Scatter plots</div>
+                <div class="graphs-outlet active" id="outlet-one">
+                    <div> 
+                        <div class="timeplot-container" style="position: relative; height: 100%; width: 100%; max-height: 100%; max-width: 100%;">
+                            <canvas id="timeplot"></canvas>
+                        </div>
+                    </div>
 
-        </div>
-    <script>
+                </div>
+                <div class="graphs-outlet" id="outlet-two" style="display:none">
+                    <div class="subplot-1" id="plot-bar-1" ></div>
+                    <div class="subplot-2" id="plot-bar-2"></div>
+                    <div class="subplot-3" id="plot-bar-3"></div>
+                </div>
+                <div class="graphs-outlet" id="outlet-three" style="display:none">
+                    <div class="subplot-1" id="plot-scatter-1"></div>
+                    <div class="subplot-2" id="plot-scatter-2"></div>
+                    <div class="subplot-3" id="plot-scatter-3"></div>
+                </div>
+            </div>
+ <script>
+
+
+let switchers = document.querySelectorAll('.switcher');
+        
+function clickListener (e) {
+    // e.target holds the clicked switcher
+    let outlets = document.querySelectorAll('.graphs-outlet');
+    for (let i = 0; i < outlets.length; i++) {
+        let curOut = outlets[i];
+        if (curOut.id == e.target.dataset.target) {
+            curOut.style.display = 'block';
+        } else {
+            curOut.style.display = 'none';
+        } 
+    }
+    // attach "active" class
+    for (let i = 0; i < switchers.length; i++) {
+        let curSwitcher = switchers[i]
+        if (curSwitcher.dataset.target == e.target.dataset.target) {
+           curSwitcher.classList.add('active');
+            
+        } else {
+           curSwitcher.classList.remove('active');
+        }
+    }
+}
+
+// attach listeners
+for (let i = 0; i < switchers.length; i++) {
+    switchers[i].addEventListener('click', clickListener);
+}
+
+
 function makeAge(min,max,step,title){
     var curYear = (new Date()).getFullYear()
     return {
@@ -463,7 +643,7 @@ function makeDistance(min,max,step, title){
 
 
 var chartData = {
-    "age": makeAge(15,75,10, "Age"),
+    "age": makeAge(15,85,10, "Age"),
     "time": makeTime(0,23,1, "Hour of ride"),
     "speed": makeSpeed(10,30,5, "Average speed (km/h)"),
     "distance": makeDistance(0,35,5, "Distance travelled (km)")
@@ -475,7 +655,7 @@ let chart;
 function initializeBarChart(variable) {
     var varData = chartData[variable];
     console.log(varData["func"]);
-    var datasts = getData(plotData(varData["func"]))
+    var datasts = getData(plotData(varData["func"]),variable)
     window.chart = new Chart(ctx, {
         // The type of chart we want to create
         type: 'bar',
@@ -532,9 +712,9 @@ function initializeBarChart(variable) {
 function initializeScatterChart(variable1,variable2) {
     var varData1 = chartData[variable1];
     var varData2 = chartData[variable2];
-    var datasts1 = plotData(varData1["data"])
+    var datasts1 = plotData(varData1["data"],variable1)
     console.log(datasts1);
-    var datasts2 = plotData(varData2["data"])
+    var datasts2 = plotData(varData2["data"],variable2)
     var scatterdataslower = createScatterData(datasts1[0],datasts2[0]);
     var scatterdatafaster = createScatterData(datasts1[1],datasts2[1]);
     window.chart = new Chart(ctx, {
@@ -635,27 +815,25 @@ function labels(d){
     return Array.from(new Array(24), (x,i) => i);
 };
 
-function getData(dt){
-    let dat = dt[0].concat(dt[1]);
-    let lbls = _.range(Math.min.apply(Math,dat),Math.max.apply(Math,dat));
-    let alldata = [];
-    console.log(dt.length);
-    for(j = 0; j < dt.length;j++){
-        console.log(j);
-        var dataDict = dt[j].reduce(function (acc, curr) {
-          if (typeof acc[curr] == 'undefined') {
-            acc[curr] = 1;
-          } else {
-            acc[curr] += 1;
-          }
-          return acc;
-        }, {});
-        var data = [];
-        for (var i = 0; i < lbls.length; i++){
-            if (!(i in Object.keys(dataDict))) {
-                dataDict[i] = 0;
-            }
-            data.push(dataDict[i]);
+function getData(dt,variable){
+    var varData = chartData[variable];
+    var lbls = _.range(1,((varData["max"]-varData["min"])/varData["step"])+1);
+    if (varData["missing"]){
+        lbls = _.range(0,((varData["max"]-varData["min"])/varData["step"])+1);
+    }
+    var alldata = [];
+
+    for (var i = 0; i < dt.length; i++) {
+        var counts = {};
+        for (var lb in lbls){
+            counts[lb] = 0;
+        }
+
+        console.log(dt[i]);
+        dt[i].forEach(((e) => counts[e] = counts[e] + 1));
+        data = [];
+        for (var key in counts){
+            data.push(counts[key]);
         }
         alldata.push(data);
     }
