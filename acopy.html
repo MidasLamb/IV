@@ -281,22 +281,26 @@
             function optionsChange(slider, option){
                 let newoption = {};
                 newoption[option] = slider.value;
-                slider.parentElement.getElementsByClassName("currentvalue")[0].innerHTML = slider.value;
                 heatMap.setOptions(newoption);
             }
 
             function clearRadioButtons() {
+                imf.removePreviewRectangle();
                 var radiobuttons = document.getElementsByClassName("imf-button");
                 for (var i = 0; i < radiobuttons.length; i++){
                     radiobuttons[i].checked = false;
                 }
             }
 
-            function mapFilter(filter){
-                imf.removePreviewRectangle();
-                imf.setFilter(filter);
-                imf.setWhenDone(clearRadioButtons);
-                imf.enable();
+            function mapFilter(element, filter){
+                if (element.checked){
+                    imf.removePreviewRectangle();
+                    imf.setFilter(filter);
+                    imf.enable();
+                } else {
+                    imf.removeMapFilter()
+                }
+
             }
 
             function addFilter(element){
@@ -304,6 +308,14 @@
                     baseFilter.addFilter(Filter.filterProfession("student"), "students").applyFilters().call(Filter.updateRoutesAndGraphs());
                 } else {
                     baseFilter.removeFilterByName("students").applyFilters().call(Filter.updateRoutesAndGraphs());
+                }
+            }
+
+            function addProfessionFilter(element, name, filters){
+                if(element.checked) {
+                    baseFilter.addFilter(Filter.filterProfession(filters), name).applyFilters().call(Filter.updateRoutesAndGraphs());
+                } else {
+                    baseFilter.removeFilterByName(name).applyFilters().call(Filter.updateRoutesAndGraphs());
                 }
             }
 
@@ -316,6 +328,42 @@
                     irc.disable();
                 }
             }
+            
+            function createGradient() {
+                // create a 256x1 gradient that we'll use to turn a grayscale heatmap into a colored one
+                var canvas = document.getElementById("heatscale"),
+                    ctx = canvas.getContext('2d'),
+                    gradient = ctx.createLinearGradient(0, 0, 256, 0);
+
+                var grad =  {
+                    0.4: 'blue',
+                    0.6: 'cyan',
+                    0.7: 'lime',
+                    0.8: 'yellow',
+                    1.0: 'red'
+                };
+
+                canvas.height = 5;
+                canvas.width = 256;
+
+                for (var i in grad) {
+                    gradient.addColorStop(+i, grad[i]);
+                }
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 256, 5);
+            }
+
+            function filterFasterThanCar(num){
+                if (num == 0){
+                    baseFilter.removeFilterByName("carcompare").applyFilters().call(Filter.updateRoutesAndGraphs());
+                } else if (num == 1) {
+                    baseFilter.addFilter(Filter.filterCarSlower(), "carcompare").applyFilters().call(Filter.updateRoutesAndGraphs());
+                } else if (num == 2) {
+                    baseFilter.addFilter(Filter.filterCarFaster(), "carcompare").applyFilters().call(Filter.updateRoutesAndGraphs());
+                }
+            }
+
 
         </script>
         <div id="controls">
@@ -332,26 +380,42 @@
                         <input id="heatmapcheckbox" type="checkbox" checked onchange="toggleHeatmap(this)"> Heatmap on
                     </div>
                     <div>
+                        <h3>Scale</h3>
+                        1 <canvas id="heatscale" width=256 height=1></canvas> <span id="heatmapmax">256</span>
+                        <script>
+                            createGradient();
+                        </script>
+                    </div>
+                    <div>
                         <h3>Line Width</h3>
-                        1 <input type="range" min="1" max="30" value="3" onchange="optionsChange(this, 'lineWidth')"> 30 <span class="currentvalue"></span> 
+                        Narrow <input type="range" min="1" max="30" value="3" onchange="optionsChange(this, 'lineWidth')"> Wide
                     </div>
                     <div>
                         <button onclick="heatMap.resetDefaultOptions()">Reset default</button>
                     </div>
                 </div>
                 <div class="control-panel" id="interactive-map-controls">
-                    <label><input type="radio" name="map" class="imf-button" onclick="mapFilter(Filter.filterStartWithin)"> StartWithin</label> <br>
-                    <label><input type="radio" name="map" class="imf-button" onclick="mapFilter(Filter.filterStopsWithin)"> StopWithin</label> <br>
-                    <label><input type="radio" name="map" class="imf-button" onclick="mapFilter(Filter.filterGoesThrough)"> Goes Through</label> <br>
+                    <label><input type="radio" name="map" class="imf-button" onclick="mapFilter(this, Filter.filterStartWithin)"> StartWithin</label> <br>
+                    <label><input type="radio" name="map" class="imf-button" onclick="mapFilter(this, Filter.filterStopsWithin)"> StopWithin</label> <br>
+                    <label><input type="radio" name="map" class="imf-button" onclick="mapFilter(this, Filter.filterGoesThrough)"> Goes Through</label> <br>
 
-                    <button onclick="imf.removeMapFilter()">Clear</button>
+                    <button onclick="imf.removeMapFilter();clearRadioButtons()">Clear</button>
                 </div>
                 <div class="control-panel" id="data-filter">
-                    <label><input type="checkbox" onclick="addFilter(this)">Only students</label>
+                    <h2>Profession Filters</h2>
+                    <label><input type="checkbox" onclick='addProfessionFilter(this, "students", "student")'>Only students</label>
                 </div>
 
                 <div class="control-panel" id="individual-routes">
-                    <label><input type="checkbox" id="irccheckbox" onclick="toggleIRC(this)">Individual Routes</label>
+                    <h2>Individual Routes</h2>
+                    <div>
+                        <label><input type="checkbox" id="irccheckbox" onclick="toggleIRC(this)">Individual Routes</label>
+                    </div>
+                    <div>
+                        <label><input type="radio" checked name="speedcomp" onclick='filterFasterThanCar(0)'>All</label>
+                        <label><input type="radio" name="speedcomp" onclick='filterFasterThanCar(1)'>Faster Than Car</label>
+                        <label><input type="radio" name="speedcomp" onclick='filterFasterThanCar(2)'>Slower Than Car</label>
+                    </div>
                 </div>
             </div>
 

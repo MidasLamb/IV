@@ -94,6 +94,7 @@ class Filter {
                 routes.push(e.geometry.coordinates);
             });
             heatMap.setRoutes(routes);
+            irc.showIndividualRoutes();
 
             // update graphs
             //removeData(window.chart);
@@ -104,7 +105,6 @@ class Filter {
 
             window.chart.update();
 
-            irc.showIndividualRoutes();
         };
     }
     
@@ -218,8 +218,7 @@ class Filter {
     static filterProfession(nameArray){
         nameArray = (nameArray instanceof Array) ? nameArray: [nameArray]
         return (d) => {
-            //console.log(d.extradata[" Profession"])
-            return nameArray.indexOf(d.extradata[" Profession"].toLowerCase()) > -1;
+            return nameArray.indexOf(d.extradata["Profession"].toLowerCase()) > -1;
         }
     }
 
