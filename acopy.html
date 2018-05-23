@@ -895,13 +895,13 @@ function initializeLineChart(ctx, variable) {
         data: {
             labels: labels2(varData["min"],varData["max"],varData["step"],varData["missing"]),
             datasets: [{
-                backgroundColor: 'rgb(168, 45, 53,0.4)',
-                borderColor: 'rgb(168, 45, 53)',
+                backgroundColor: 'rgb(255,0,0,0.5)',
+                borderColor: 'rgb(255,0,0)',
                 data: datasts[0]
             },
             {
-                backgroundColor: 'rgb(68, 142, 125,0.4)',
-                borderColor: 'rgb(68, 142, 125)',
+                backgroundColor: 'rgb(66, 134, 244,0.5)',
+                borderColor: 'rgb(66, 134, 244)',
                 data: datasts[1]
             }]
         }
@@ -951,13 +951,13 @@ function initializeBarChart(ctx, variable) {
         data: {
             labels: labels2(varData["min"],varData["max"],varData["step"],varData["missing"]),
             datasets: [{
-                backgroundColor: 'rgb(168, 45, 53,0.4)',
-                borderColor: 'rgb(168, 45, 53)',
+                backgroundColor: 'rgb(255,0,0,0.8)',
+                borderColor: 'rgb(255,0,0)',
                 data: datasts[0]
             },
             {
-                backgroundColor: 'rgb(68, 142, 125,0.4)',
-                borderColor: 'rgb(68, 142, 125)',
+                backgroundColor: 'rgb(66, 134, 244,0.8)',
+                borderColor: 'rgb(66, 134, 244)',
                 data: datasts[1]
             }]
         }
@@ -1014,13 +1014,13 @@ function initializeScatterChart(ctx, variable1,variable2) {
         // The data for our dataset
         data: {
             datasets: [{
-                backgroundColor: 'rgb(68, 142, 125,0.3)',
-                borderColor: 'rgb(68, 142, 125,0.3)',
+                backgroundColor: 'rgb(66, 134, 244,0.8)',
+                borderColor: 'rgb(66, 134, 244)',
                 data: scatterdatafaster
             },
             {
-                backgroundColor: 'rgb(168, 45, 53,0.3)',
-                borderColor: 'rgb(168, 45, 53,0.3)',
+                backgroundColor: 'rgb(255,0,0,0.8)',
+                borderColor: 'rgb(255,0,0)',
                 data: scatterdataslower
             },
             ]
