@@ -739,7 +739,7 @@ function makeDistance(min,max,step, title){
         "min": min,
         "max": max,
         "step": step,
-        "func": (e) => Math.ceil((e.extradata[" Distance"]-min)/step),
+        "func": (e) => Math.ceil((e.extradata["Distance"]-min)/step),
         "data": (e) => e.extradata["Distance"],
         "missing": false,
         "title": title
@@ -754,13 +754,13 @@ var chartData = {
     "speed": makeSpeed(10,30,5, "Average speed (km/h)"),
     "distance": makeDistance(0,35,5, "Distance travelled (km)")
 }
-var charts = {};
+var plotcharts = {};
 
 function initializeLineChart(ctx, variable) {
     var varData = chartData[variable];
     console.log(varData["func"]);
     var datasts = getData(plotData(varData["func"]),variable)
-    window.charts[variable] = new Chart(ctx, {
+    window.plotcharts[variable] = new Chart(ctx, {
         // The type of chart we want to create
         type: 'line',
         // Configuration options go here
@@ -815,9 +815,8 @@ function initializeLineChart(ctx, variable) {
 
 function initializeBarChart(ctx, variable) {
     var varData = chartData[variable];
-    console.log(varData["func"]);
     var datasts = getData(plotData(varData["func"]),variable)
-    window.charts[variable] = new Chart(ctx, {
+    window.plotcharts[variable] = new Chart(ctx, {
         // The type of chart we want to create
         type: 'bar',
         // Configuration options go here
@@ -869,7 +868,7 @@ function initializeBarChart(ctx, variable) {
         }
     });
 }
-
+var scattercharts = {};
 function initializeScatterChart(ctx, variable1,variable2) {
     var varData1 = chartData[variable1];
     var varData2 = chartData[variable2];
@@ -878,7 +877,7 @@ function initializeScatterChart(ctx, variable1,variable2) {
     var datasts2 = plotData(varData2["data"],variable2)
     var scatterdataslower = createScatterData(datasts1[0],datasts2[0]);
     var scatterdatafaster = createScatterData(datasts1[1],datasts2[1]);
-    window.charts[variable1.concat(variable2)] = new Chart(ctx, {
+    window.scattercharts[variable1+"_"+variable2] = new Chart(ctx, {
         // The type of chart we want to create
         type: 'scatter',
         // Configuration options go here
