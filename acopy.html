@@ -53,7 +53,7 @@
                 grid-template-areas: 
                     "left head head right rightbar"
                     "left center center right rightbar"
-                    "footer footer footer right rightbar";
+                    "footer footer footer footer rightbar";
                 grid-template-columns: 1fr 5fr 3fr 2fr 75px;
                 grid-template-rows: 1fr 1fr 170px;
                 position: absolute;
@@ -63,6 +63,13 @@
                 right: 0px;
                 z-index: 200;
                 pointer-events:none;
+            }
+
+            #controls.nographs {
+                grid-template-areas: 
+                    "left head head right rightbar"
+                    "left center center right rightbar"
+                    "footer footer footer right rightbar";
             }
 
             .control-panel.invisible {
@@ -148,17 +155,29 @@
                 margin-top: 40px;
             }
 
+            .control-panel.graphs {
+                transition: transform 0.5s;
+            }
+
+            .control-panel.graphs.invisible{
+                transform: translate(0, 34vh);
+                transition: transform 0.5s;
+                display: block;
+                max-height: 100vh;
+            }
+
             .graphs {
                 grid-area: footer;
                 background: white;
 
                 display: grid;
-                grid-template-columns: 85% 15%;
-                grid-template-rows: 33.333% 33.333% 33.333%;
 
-                grid-template-areas: "graph switcher" 
-                                    "graph switcher"
-                                    "graph switcher";
+                grid-template-rows: 1fr 1fr 1fr;
+                grid-template-columns: 85% 15%;
+
+                grid-template-areas: "graph switcher"
+                                        "graph switcher"
+                                        "graph switcher";
                 height: 100%;
             }
 
@@ -288,6 +307,10 @@
                     element.classList.add("inactive");
                 } else {
                     element.classList.remove("inactive");
+                }
+
+                if (element.dataset.secondarytarget){
+                    document.getElementById("controls").classList.toggle("nographs");
                 }
 
                 // var others = document.getElementsByClassName("control-panel");
@@ -516,6 +539,12 @@
                     <label><input type="checkbox" onclick='addProfessionFilter(this, "students", "student")'>Only students</label>
                 </div>
 
+                <div class="control-panel" id="graphselector">
+                    <h2>Graphs</h2>
+                    <div class="switcher switcher-one active" data-target="outlet-one">Time plot</div>
+                    <div class="switcher switcher-two" data-target="outlet-two">Bar charts</div>
+                    <div class="switcher switcher-three" data-target="outlet-three">Scatter plots</div>
+                </div>
             </div>
 
             <div id="rightbar">
@@ -565,7 +594,7 @@
                         <path id="path17" inkscape:connector-curvature="0" sodipodi:nodetypes="csccsccssccssccccccc" d="M11,4V2c0-1-1-1-1-1H5.0497  c0,0-1.1039,0.0015-1.0497,1v2H2c0,0-1,0-1,1v7c0,1,1,1,1,1h11c0,0,1,0,1-1V5c0-1-1-1-1-1H11z M5.5,2.5h4V4h-4V2.5z"/>
                         </svg>
                 </div>
-                <div class="bar-item" data-target="graphs" onclick="show(this)">
+                <div class="bar-item" data-target="graphs" data-secondarytarget="graphselector" onclick="show(this)">
                     <svg
                     x="0px"
                     y="0px"
@@ -587,16 +616,16 @@
                      </style><g
                       id="Laag_3"
                       style="display:inline"><path
-                        style="fill:none;stroke:#000000;stroke-width:20;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                        style="fill:none;stroke-width:20;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
                         d="m 509.13913,64.639894 3.2835,271.262736 h 308.64929"
                         id="path1157"
                         inkscape:connector-curvature="0" /><path
-                        style="fill:none;stroke:#000000;stroke-width:15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                        style="fill:none;stroke-width:15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
                         d="m 517.58014,166.31749 103.44151,36.82272 128.83591,-64.51263 77.82665,30.15934"
                         id="path1159"
                         sodipodi:nodetypes="ccc" /><path
                         sodipodi:type="star"
-                        style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:15;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                        style="fill:#000000;fill-opacity:1;;stroke-width:15;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
                         id="path1163"
                         sodipodi:sides="3"
                         d="m 770.12471,258.44785 -28.55899,17.40106 -0.79027,-33.43333 z"
@@ -604,7 +633,7 @@
                         transform="matrix(0.00183835,-0.87706317,0.97511907,0.00204843,256.91837,725.62406)"
                         d="m 770.12471,258.44785 -28.55899,17.40106 -0.79027,-33.43333 z"
                         id="path1185"
-                        style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:15;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                        style="fill:#000000;fill-opacity:1;stroke-width:15;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
                         sodipodi:type="star" /></g></svg> 
                 </div>
             </div>
