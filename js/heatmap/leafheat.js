@@ -2,7 +2,7 @@
 * Created by Midas Lambrichts.
 * Heavily inspired by and build upon: https://github.com/Leaflet/Leaflet.heat
 */
-L.HeatLayer = (L.Layer ? L.Layer : L.Class).extend({
+L.HeatLayer2 = (L.Layer ? L.Layer : L.Class).extend({
 
 
     defaultGradient: {
@@ -264,6 +264,6 @@ L.HeatLayer = (L.Layer ? L.Layer : L.Class).extend({
     }
 });
 
-L.heatLayer = function (options) {
-    return new L.HeatLayer(options);
+L.heatLayer2 = function (options) {
+    return new L.HeatLayer2(options);
 };

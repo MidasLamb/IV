@@ -72,6 +72,7 @@ CartoDB_Positron.addTo(map);
 //         });
 //     })
 //     .addTo(map);
-heatMap = L.heatLayer();
+heatMap = L.heatLayer2();
+pointHeatMap = L.heatLayer();
 
 

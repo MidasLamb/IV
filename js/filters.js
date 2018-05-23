@@ -90,10 +90,21 @@ class Filter {
         return (d) => {
             // update routes
             var routes = [];
+            var startPoints = [];
+            var endPoints = [];
             d.each((e) => {
                 routes.push(e.geometry.coordinates);
+                startPoints.push(e.geometry.coordinates[0]);
+                endPoints.push(e.geometry.coordinates[e.geometry.coordinates.length - 1]);
             });
             heatMap.setRoutes(routes);
+
+            if (showStartPoints){
+                pointHeatMap.setLatLngs(startPoints);
+            } else {
+                pointHeatMap.setLatLngs(endPoints);
+            }
+
             irc.showIndividualRoutes();
 
             // update graphs
