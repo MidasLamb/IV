@@ -869,7 +869,7 @@ function makeDistance(min,max,step, title){
 
 var chartData = {
     "age": makeAge(15,85,10, "Age"),
-    "time": makeTime(0,24,1, "Hour of ride"),
+    "time": makeTime(0,24,1, "Hour of ride (h)"),
     "speed": makeSpeed(5,35,5, "Average speed (km/h)"),
     "distance": makeDistance(0,45,5, "Distance travelled (km)")
 }
@@ -1078,7 +1078,7 @@ function labels2(min,max,step,missing){
     var range = _.range(min,max+1,step);
     var lab = []
     if (missing){
-        lab.push("unknown");
+        lab.push("undef");
     }
     for (i = 0; i < range.length-1; i++) {
         lab.push(range[i].toString()+"-"+range[i+1].toString())
@@ -1120,5 +1120,5 @@ function getData(dt,variable){
 
 
 </script>
-    </body>
+</body>
 </html>
