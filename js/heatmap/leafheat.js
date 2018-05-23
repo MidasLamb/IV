@@ -159,6 +159,8 @@ L.HeatLayer = (L.Layer ? L.Layer : L.Class).extend({
             colored.data[i] = Math.round(scaler*colored.data[i]);
         }
 
+        document.getElementById("heatmapmax").innerHTML = highest;
+
         this._colorize(colored.data, this.gradient(this.defaultGradient));
         ctx.putImageData(colored, 0, 0);
         
@@ -193,10 +195,6 @@ L.HeatLayer = (L.Layer ? L.Layer : L.Class).extend({
                 pixels[i] = gradient[j];
                 pixels[i + 1] = gradient[j + 1];
                 pixels[i + 2] = gradient[j + 2];
-                // pixels[i] = 122;
-                // pixels[i + 1] = 122;
-                // pixels[i + 2] = 122;
-                // pixels[i + 3] = 255;
             }
         }
     },

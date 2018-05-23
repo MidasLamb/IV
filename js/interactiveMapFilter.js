@@ -64,7 +64,9 @@ class InteractiveMapFilter {
     disable() {
         this.disabled = true;
         map.dragging.enable();
-        this.whenDone();
+        if (this.whenDone){
+            this.whenDone();
+        }
     }
 
     removeMapFilter(){
