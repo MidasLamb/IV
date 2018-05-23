@@ -246,25 +246,31 @@
                 addTimeFilter();
             }
 
-            let outlets = document.querySelectorAll('.graphs-outlet-line canvas');
-            for (i =0; i < outlets.length; i++){
-                var variable = outlets[i].id.split("_")[0];
-                var curout = outlets[i].getContext('2d');
+            var outlets = document.querySelectorAll('.graphs-outlet');
+            var elements = outlets[0].querySelectorAll('canvas');
+            console.log(elements);
+            for (var i =0; i < elements.length; i++){
+                var variable = elements[i].id.split("_")[0];
+                var curout = elements[i].getContext('2d');3
+
+                console.log("canvas");
+                console.log(curout);
                 initializeLineChart(curout,variable);
             }
-
-            outlets = document.querySelectorAll('.graphs-outlet-plot canvas');
-            for (i =0; i < outlets.length; i++){
-                var variable = outlets[i].id.split("_")[0];
-                var curout = outlets[i].getContext('2d');
+            var elements = outlets[1].querySelectorAll('canvas');
+            console.log(elements.length);
+            for (var j =0; j < elements.length; j++){
+                console.log(j);
+                var variable = elements[j].id.split("_")[0];
+                console.log(variable);
+                var curout = elements[j].getContext('2d');
                 initializeBarChart(curout,variable);
             }
-
-            outlets = document.querySelectorAll('.graphs-outlet-scatter canvas');
-            for (i =0; i < outlets.length; i++){
-                var variable1 = outlets[i].id.split("_")[0];
-                var variable2 = outlets[i].id.split("_")[1];
-                var curout = outlets[i].getContext('2d');
+            var elements = outlets[2].querySelectorAll('canvas');
+            for (var k =0; k < outlets.length; k++){
+                var variable1 = elements[k].id.split("_")[0];
+                var variable2 = elements[k].id.split("_")[1];
+                var curout = elements[k].getContext('2d');
                 initializeScatterChart(curout,variable1,variable2);
             }
         }
@@ -594,21 +600,20 @@
                 <div class="switcher switcher-one active" data-target="outlet-one">Time plot</div>
                 <div class="switcher switcher-two" data-target="outlet-two">Bar charts</div>
                 <div class="switcher switcher-three" data-target="outlet-three">Scatter plots</div>
-                <div class="graphs-outlet-line active" id="outlet-one">
-                    <div> 
+                <div class="graphs-outlet active show" id="outlet-one">
+                    <div style="height:100%">
                         <div class="timeplot-container" style="position: relative; height: 100%; width: 100%; max-height: 100%; max-width: 100%;">
                             <canvas id="time_plot"></canvas>
                         </div>
                     </div>
 
                 </div>
-                <div class="graphs-outlet-plot" id="outlet-two" style="display:none">
-                    <div class="subplot-1" id="plot-bar-1" ><canvas id="age_bar"></canvas></div>
-                    <div class="subplot-2" id="plot-bar-2"><canvas id="speed_bar"></canvas></div>
-                    <div class="subplot-3" id="plot-bar-3"><canvas id="distance_bar"></canvas></div>
-
+                <div class="graphs-outlet" id="outlet-two" style="position: relative; height: 100%; width: 100%; max-height: 100%; max-width: 100%;">
+                        <div class="subplot-1" id="plot-bar-1" ><canvas id="age_bar"></canvas></div>
+                        <div class="subplot-2" id="plot-bar-2" ><canvas id="speed_bar"></canvas></div>
+                        <div class="subplot-3" id="plot-bar-3" ><canvas id="distance_bar"></canvas></div>
                 </div>
-                <div class="graphs-outlet-scatter" id="outlet-three" style="display:none">
+                <div class="graphs-outlet" id="outlet-three">
                     <div class="subplot-1" id="plot-scatter-1"><canvas id="age_speed_plot"></canvas></div>
                     <div class="subplot-2" id="plot-scatter-2"><canvas id="speed_distance_plot"></canvas></div>
                     <div class="subplot-3" id="plot-scatter-3"><canvas id="age_distance_plot"></canvas></div>
@@ -622,13 +627,17 @@ let switchers = document.querySelectorAll('.switcher');
         
 function clickListener (e) {
     // e.target holds the clicked switcher
-    let outlets = document.querySelectorAll('.graphs-outlet');
+    var outlets = document.querySelectorAll('.graphs-outlet');
     for (let i = 0; i < outlets.length; i++) {
-        let curOut = outlets[i];
+        var curOut = outlets[i];
+        console.log(e.target.dataset.target);
         if (curOut.id == e.target.dataset.target) {
             curOut.classList.add('show');
+            curOut.classList.add('active');
+            console.log(curOut);
         } else {
             curOut.classList.remove('show');
+            curOut.classList.remove('active');
         } 
     }
     // attach "active" class
