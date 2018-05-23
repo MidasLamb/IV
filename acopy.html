@@ -17,6 +17,10 @@
                 box-sizing: border-box;
             }
 
+            #map.imfcursor {
+                cursor: crosshair !important;
+            }
+
             body { margin:0; padding:0; font-family: sans-serif; overflow: hidden}
             #map { position:absolute; top:0; bottom:0; width:100%; }
             .fiets-route {
@@ -380,13 +384,6 @@
                 if (element.dataset.secondarytarget){
                     document.getElementById("controls").classList.toggle("nographs");
                 }
-
-                // var others = document.getElementsByClassName("control-panel");
-                // for (var i = 0; i < others.length; i++){
-                //     if (others[i] != target){
-                //         others[i].classList.add("invisible");
-                //     }
-                // }
             }
 
             function toggleHeatmap(e){
@@ -583,20 +580,22 @@
                 <div class="control-panel" id="heatmap-controls">
                     <h2>Heatmap Controls</h2>
                     <div>
-                        <label><input id="heatmapcheckbox" type="checkbox" checked onchange="toggleHeatmap(this)"> Route Heatmap </label> <br>
-                        <label><input id="pointmapstart" type="checkbox" onchange="togglePointHeatmap(this, 0)"> Point Heatmap (Route start)</label> <br>
-                        <label><input id="pointmapend" type="checkbox" onchange="togglePointHeatmap(this, 1)"> Point Heatmap (Route end)</label> <br>
-                        <label><input type="checkbox" id="irccheckbox" onclick="toggleIRC(this)"> Individual Routes</label>
+                        <label title="Toggle the heatmap of the entire routes on and off"><input id="heatmapcheckbox" type="radio" name="maptype" checked onchange="toggleHeatmap(this)"> Route Heatmap </label> <br>
+                        <label title="Toggle the heatmap of the starting points of routes on and off"><input id="pointmapstart" type="radio" name="maptype" onchange="togglePointHeatmap(this, 0)"> Point Heatmap (Route start)</label> <br>
+                        <label title="Toggle the heatmap of the end points of routes on and off"><input id="pointmapend" type="radio" name="maptype" onchange="togglePointHeatmap(this, 1)"> Point Heatmap (Route end)</label> <br>
+                        <label title"Toggle individual routes on and off. This allows to ispect the car routes."><input type="radio" name="maptype" id="irccheckbox" onclick="toggleIRC(this)"> Individual Routes</label>
                     </div>
                     <div id="route-controls">
-                        <div>
+                        <div title="The scale of the heatmap, the numbers show the minimum and maximum amount of overlapping routes">
                             <h3>Scale</h3>
-                            1 <canvas id="heatscale" style="max-width:256px; width:80%";></canvas> <span id="heatmapmax">256</span>
+                            <div>
+                                1 <canvas id="heatscale" style="max-width:256px; width:80%";></canvas> <span id="heatmapmax">256</span>
+                            </div>
                             <script>
                                 createGradient();
                             </script>
                         </div>
-                        <div>
+                        <div title="The width of the routes on the heatmap. If you think the lines are too small or too big, change this value">
                             <h3>Line Width</h3>
                             Narrow <input type="range" min="1" max="30" value="3" onchange="optionsChange(this, 'lineWidth')"> Wide
                         </div>
@@ -613,25 +612,25 @@
                     <div id="indi-controls" style="display: none">
                         <h3>Legend</h3>
                         <span style="width:10px; height: 10px; background-color: orange; display: inline-block;"></span> Bike </br>
-                        <span style="width:10px; height: 10px; background-color: #4286f4; display: inline-block;"></span> Bike faster than car </br>
-                        <span style="width:10px; height: 10px; background-color: red; display: inline-block;"></span> Bike slower than car </br>
+                        <span style="width:10px; height: 10px; background-color: #4286f4; display: inline-block;"></span> Bike faster than car (on hover)</br>
+                        <span style="width:10px; height: 10px; background-color: red; display: inline-block;"></span> Bike slower than car (on hover)</br>
                         <span style="width:10px; height: 10px; background-color: black; display: inline-block;"></span> Car with same start and end points 
                     </div>
                 </div>
                 <div class="control-panel" id="interactive-map-controls">
                     <h2>Position Filter</h2>
-                    <label><input type="radio" name="map" class="imf-button" onclick="mapFilter(this, Filter.filterStartWithin)"> Starts Within</label> <br>
-                    <label><input type="radio" name="map" class="imf-button" onclick="mapFilter(this, Filter.filterStopsWithin)"> Stops Within</label> <br>
-                    <label><input type="radio" name="map" class="imf-button" onclick="mapFilter(this, Filter.filterGoesThrough)"> Goes Through</label> <br>
+                    <label title="Shows the routes which start within the rectangle you can draw on the map after selecting this"><input type="radio" name="map" class="imf-button" onclick="mapFilter(this, Filter.filterStartWithin)"> Starts Within</label> <br>
+                    <label title="Shows the routes which stop within the rectangle you can draw on the map after selecting this"><input type="radio" name="map" class="imf-button" onclick="mapFilter(this, Filter.filterStopsWithin)"> Stops Within</label> <br>
+                    <label title="Shows the routes which go through the rectangle you can draw on the map after selecting this"><input type="radio" name="map" class="imf-button" onclick="mapFilter(this, Filter.filterGoesThrough)"> Goes Through</label> <br>
 
                     <button onclick="imf.removeMapFilter();clearRadioButtons()">Clear</button>
                 </div>
                 <div class="control-panel" id="car-compares">
                     <h2>Compare with Cars</h2>
                     <div>
-                        <label><input type="radio" checked name="speedcomp" onclick='filterFasterThanCar(0)'>All</label> <br>
-                        <label><input type="radio" name="speedcomp" onclick='filterFasterThanCar(1)'>Bike faster Than Car</label> <br>
-                        <label><input type="radio" name="speedcomp" onclick='filterFasterThanCar(2)'>Bike slower Than Car</label> <br>
+                        <label title="Does not filter the routes based on whether or not they are faster than the car for the same route"><input type="radio" checked name="speedcomp" onclick='filterFasterThanCar(0)'>All</label> <br>
+                        <label title="Shows the routes which the bikes are faster than the same route with the car"><input type="radio" name="speedcomp" onclick='filterFasterThanCar(1)'>Bike faster Than Car</label> <br>
+                        <label title="Shows the routes on which the bikes are slower than the same route with the car"><input type="radio" name="speedcomp" onclick='filterFasterThanCar(2)'>Bike slower Than Car</label> <br>
                     </div>
                 </div>
                 <div class="control-panel" id="data-filter">
@@ -641,7 +640,7 @@
             </div>
 
             <div id="rightbar">
-                <div class="bar-item" data-target="time-controls" onclick="show(this)">
+                <div title="Time Controls" class="bar-item" data-target="time-controls" onclick="show(this)">
                     <svg version="1.1" id="Laag_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
                         viewBox="296 207 273 245"  xml:space="preserve">
                         <style type="text/css">
@@ -659,12 +658,12 @@
                         <rect x="445.2" y="320" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -113.2686 420.8715)" width="12.4" height="54.4"/>
                     </svg>
                 </div>
-                <div class="bar-item" data-target="heatmap-controls" onclick="show(this)">
+                <div title="Heatmap Controls" class="bar-item" data-target="heatmap-controls" onclick="show(this)">
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Camada_1" x="0px" y="0px" width="308px" height="534px" viewBox="151.5 50.5 308 534" enable-background="new 151.5 50.5 308 534" xml:space="preserve">
                         <path d="M430.095,366.991c-32.803-42.283-33.434-90.521-16.298-133.116c-36.315,35.569-56.763,79.548-42.484,123.955  c1.812,5.648,2.974,11.181,3.824,16.83l0.325,6.812l-2.026,0.746l-8.623-19.706c-12.252-33.538-14.058-68.899-2.025-105.215  c23.96-71.133-7.344-140.785-64.426-196.795c26.304,67.724,23.856,144.726-29.388,212.884c-10.227,12.993-18.636,26.2-25.343,39.719  l-4.052,8.941l0.324-2.338c10.753-45.789-12.674-87.326-51.652-118.63c20.232,40.569,23.323,88.71-6.071,134.499  c-24.603,47.277-30.888,105.962-11.609,149.519c30.141,62.938,70.185,91.903,124.604,93.391c7.876,0.104,15.973-0.208,24.283-1.278  c44.407-4.792,99.891-26.506,117.779-77.944C454.911,455.162,463.326,410.003,430.095,366.991z"/>
                         </svg>
                 </div>
-                <div class="bar-item" data-target="interactive-map-controls" onclick="show(this)">
+                <div title="Position Controls" class="bar-item" data-target="interactive-map-controls" onclick="show(this)">
                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
                         viewBox="720 216 284 412" style="enable-background:new 0 0 1366 768;" xml:space="preserve">
                         <style type="text/css">
@@ -676,7 +675,7 @@
                         </g>
                     </svg>
                 </div>
-                <div class="bar-item" data-target="car-compares" onclick="show(this)">
+                <div title="Compare with cars" class="bar-item" data-target="car-compares" onclick="show(this)">
                         <svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.0" viewbox="-10 0 290 186.79424" id="svg2">
                             <metadata id="metadata12">
                               <rdf:RDF>
@@ -691,7 +690,7 @@
                             <path d="M 62.32168,3.2317821 C 50.29537,4.2194521 42.74954,11.615292 38.60294,21.981782 l -19.312504,49.21874 15.562504,-1.03125 16.96874,-43.12499 c 1.55499,-3.62827 5.70551,-7.16916 10.5,-7.6875 44.76701,-5.89367 104.59647,-6.21939 155.71871,0 4.79448,0.51834 8.85126,4.05923 10.40625,7.6875 l 16.96874,43.12499 15.5625,1.03125 -19.3125,-49.21874 C 237.51875,11.615292 229.94613,4.4325121 218.04039,3.2317821 c -44.85164,-4.52341 -105.92629,-4.08921003 -155.71871,0 z m 77.81248,62.9999899 c -35.39855,0.16437 -70.71852,3.32294 -105.84372,7.59375 C 19.625726,75.877802 9.9982958,79.060892 4.7591958,87.606762 -5.4399642,104.24347 0.46216587,130.8255 25.29044,130.8255 l 101.34372,0 27,0 101.34372,0 c 24.82826,0 30.7304,-26.58203 20.53124,-43.218738 -5.2391,-8.54587 -14.86652,-10.60396 -29.53124,-12.65625 -35.1515,-3.84883 -70.43662,-8.88316 -105.84372,-8.71874 z M 31.47794,85.263012 c 10.15941,0 18.37499,8.2156 18.37499,18.374998 0,10.15937 -8.21558,18.46877 -18.37499,18.46874 -10.159384,0 -18.468744,-8.30937 -18.468754,-18.46874 0,-10.159388 8.30937,-18.375048 18.468754,-18.374998 z m 217.40619,0 c 10.15938,-5e-5 18.375,8.21561 18.375,18.374998 -3e-5,10.15937 -8.21562,18.46874 -18.375,18.46874 -10.15941,3e-5 -18.46874,-8.30937 -18.46874,-18.46874 0,-10.159398 8.30933,-18.374998 18.46874,-18.374998 z M 4.7591958,135.04425 c -2.58435,0 -4.68749993,2.0094 -4.68749993,4.59375 l 0,6.1875 c 0,2.58435 2.10314993,4.78124 4.68749993,4.78124 l 8.9999902,0 0,28.96875 c 0,3.96486 3.25384,7.21874 7.21875,7.21874 l 27.468744,0 c 3.96491,0 7.21875,-3.25382 7.21875,-7.21874 l 0,-28.96875 59.62499,0 49.78123,0 59.62499,0 0,28.96875 c 0,3.96492 3.16011,7.21874 7.125,7.21874 l 27.46874,0 c 3.96492,0 7.21875,-3.25388 7.21875,-7.21874 l 0,-28.96875 8.99999,0 c 2.58432,0 4.6875,-2.19689 4.6875,-4.78124 l 0,-6.1875 c 0,-2.58435 -2.10315,-4.59375 -4.6875,-4.59375 l -119.53121,0 -31.6875,0 -119.5312142,0 z" id="path2001" />
                           </svg>
                 </div>
-                <div class="bar-item" data-target="data-filter" onclick="show(this)">
+                <div title="Filter Profession" class="bar-item" data-target="data-filter" onclick="show(this)">
                     <svg xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="svg4619" inkscape:version="0.91 r13725" sodipodi:docname="suitcase-15.svg" x="0px" y="0px" viewBox="0 0 15 15" xml:space="preserve">
                         <style>
                             #path17 {
@@ -702,7 +701,7 @@
                         <path id="path17" inkscape:connector-curvature="0" sodipodi:nodetypes="csccsccssccssccccccc" d="M11,4V2c0-1-1-1-1-1H5.0497  c0,0-1.1039,0.0015-1.0497,1v2H2c0,0-1,0-1,1v7c0,1,1,1,1,1h11c0,0,1,0,1-1V5c0-1-1-1-1-1H11z M5.5,2.5h4V4h-4V2.5z"/>
                         </svg>
                 </div>
-                <div class="bar-item" data-target="graphs" data-secondarytarget="graphselector" onclick="show(this)">
+                <div title="Graphs" class="bar-item" data-target="graphs" data-secondarytarget="graphselector" onclick="show(this)">
                     <svg
                     x="0px"
                     y="0px"

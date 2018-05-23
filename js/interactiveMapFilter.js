@@ -59,6 +59,7 @@ class InteractiveMapFilter {
     enable() {
         this.disabled = false;
         map.dragging.disable();
+        document.getElementById("map").classList.add("imfcursor");
     }
 
     disable() {
@@ -67,6 +68,7 @@ class InteractiveMapFilter {
         if (this.whenDone){
             this.whenDone();
         }
+        document.getElementById("map").classList.remove("imfcursor");
     }
 
     removeMapFilter(){
