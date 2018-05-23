@@ -20,11 +20,17 @@
             body { margin:0; padding:0; font-family: sans-serif; overflow: hidden}
             #map { position:absolute; top:0; bottom:0; width:100%; }
             .fiets-route {
-                stroke-opacity: 0.0;
+                stroke-opacity: 1.0;
                 cursor: pointer;
             }
+
+            .car-route {
+                stroke: black !important;
+            }
+
             .car-route.active {
                 stroke-opacity: 1.0;
+                stroke: black !important;
             }
 
             .hideimportant {
@@ -35,19 +41,6 @@
                 display: none;
             }
 
-
-            .fiets-route:hover {
-                stroke: red !important;
-            }
-
-            .fiets-route.auto-faster{
-                stroke: yellow;
-                stroke-opacity: 1.0;
-            }
-            .fiets-route.auto-slower {
-                stroke-opacity: 1.0;
-                stroke: green;
-            }
             #controls {
                 display: grid;
                 grid-template-areas: 
@@ -179,6 +172,7 @@
                                         "graph switcher"
                                         "graph switcher";
                 height: 100%;
+                z-index: 10;
             }
 
             .graphs-outlet {
@@ -203,10 +197,14 @@
                 padding: 0.5em;
                 margin-left: 0.5em;
                 color: #666;
+                cursor: pointer;
+                text-align: center;
+                font-weight: 500;
             }
 
             .switcher.active {
                 color: black;
+                font-weight: 700;
             }
 
             .switcher:not(.active) {
@@ -214,7 +212,7 @@
             }
 
             .switcher:hover {
-                transition: all 0.4s;
+                font-weight: 700;
                 color: #111;
             }
 
@@ -229,9 +227,48 @@
             .subplot-2 { grid-column: 2 }
             .subplot-3 { grid-column: 3 }
 
+            #loader {
+                background: white;
+                z-index: 1000000;
+                position:sticky;
+                top: 0;
+                left: 0;
+                width : 100vw;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                transition: opacity 0.5s;
+            }
+
+            #spinner {
+                border: 16px solid #f3f3f3; /* Light grey */
+                border-top: 16px solid #3498db; /* Blue */
+                border-radius: 50%;
+                width: 120px;
+                height: 120px;
+                animation: spin 1s ease-in-out infinite;
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+
         </style>
     </head>
     <body>
+        <div id="loader">
+            <div style="text-align: center">
+                <h1>City of Antwerp</h1>
+                <h2>Cycling Data</h2>
+            </div>
+            <div id="spinner"></div>
+            <div>
+                <h3>Loading...</h3>
+            </div>
+        </div>
         <div id='map'></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js" integrity="sha256-j2LsvgOlQFIb2Mphb+tX7d5pNmFdpsJU+s5GNo3z63g=" crossorigin="anonymous"></script>
@@ -251,6 +288,14 @@
     <script src="/js/individualRouteController.js"></script>
     <script src='/js/lodash.js'></script>
     <script>
+
+        function hideLoader(){
+            document.getElementById("loader").style.opacity = "0";
+            setTimeout(() => {
+                document.getElementById("loader").style.display = "none";
+            }, 500);
+        }
+
         function afterData() {
             // initialize map filter
             baseFilter = new Filter();
@@ -271,21 +316,14 @@
 
             var outlets = document.querySelectorAll('.graphs-outlet');
             var elements = outlets[0].querySelectorAll('canvas');
-            console.log(elements);
             for (var i =0; i < elements.length; i++){
                 var variable = elements[i].id.split("_")[0];
                 var curout = elements[i].getContext('2d');3
-
-                console.log("canvas");
-                console.log(curout);
                 initializeLineChart(curout,variable);
             }
             var elements = outlets[1].querySelectorAll('canvas');
-            console.log(elements.length);
             for (var j =0; j < elements.length; j++){
-                console.log(j);
                 var variable = elements[j].id.split("_")[0];
-                console.log(variable);
                 var curout = elements[j].getContext('2d');
                 initializeBarChart(curout,variable);
             }
@@ -296,6 +334,26 @@
                 var curout = elements[k].getContext('2d');
                 initializeScatterChart(curout,variable1,variable2);
             }
+
+            setTimeout(() => {
+                hideLoader();
+                setTimeout(() => { 
+                    hideAll();
+                }, 500);
+            }, 500);
+        }
+
+        function hideAll(){
+            var els = document.getElementsByClassName("bar-item");
+            var i = 0;
+            var f = () => {
+                if (i < els.length){
+                    show(els[i]);
+                    i++
+                    setTimeout(f, 250);
+                }
+            }
+            f();
         }
     </script>
 
@@ -326,8 +384,7 @@
                     hideHeatmap();
                 } else {
                     showHeatmap();
-                    irc.disable();
-                    document.getElementById("irccheckbox").checked = false;
+                    hideIRC();
                     hidePointMap();
                 }
             }
@@ -366,8 +423,7 @@
                     showPointMap();                    
                     hideHeatmap();
                     document.getElementById("pointmapend").checked = false;
-                    irc.disable();
-                    document.getElementById("irccheckbox").checked = false;
+                    hideIRC();
                 } else if (e.checked && num == 1){
                     showStartPoints = false;
                     baseFilter.call(Filter.updateRoutesAndGraphs());
@@ -376,8 +432,7 @@
 
                     hideHeatmap();
                     document.getElementById("pointmapstart").checked = false;
-                    irc.disable();
-                    document.getElementById("irccheckbox").checked = false;
+                    hideIRC();
                 } else {
                     pointHeatMap.removeFrom(map);
                 }
@@ -425,19 +480,32 @@
 
             function toggleIRC(element){
                 if (element.checked){
-                    irc.enable();
+                    showIRC();
                     hideHeatmap();
                     hidePointMap();
                 } else {
-                    irc.disable();
+                    hideIRC();
                 }
+            }
+
+            function hideIRC(){
+                document.getElementById("indi-controls").style.display = "none";
+                document.getElementById("irccheckbox").checked = false;
+                irc.disable();
+            }
+
+            function showIRC(){
+                document.getElementById("indi-controls").style.display = "";
+                document.getElementById("irccheckbox").checked = true;
+                irc.enable();
+
             }
             
             function createGradient() {
                 // create a 256x1 gradient that we'll use to turn a grayscale heatmap into a colored one
                 var canvas = document.getElementById("heatscale"),
                     ctx = canvas.getContext('2d'),
-                    gradient = ctx.createLinearGradient(0, 0, 256, 0);
+                    gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
 
                 var grad =  {
                     0.4: 'blue',
@@ -448,14 +516,13 @@
                 };
 
                 canvas.height = 5;
-                canvas.width = 256;
 
                 for (var i in grad) {
                     gradient.addColorStop(+i, grad[i]);
                 }
 
                 ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, 256, 5);
+                ctx.fillRect(0, 0, canvas.width, 5);
             }
 
             function filterFasterThanCar(num){
@@ -472,14 +539,35 @@
                 pointHeatMap.setOptions({"radius": +e.value});
             }
 
+            var currentdays = [0,1,2,3,4,5,6];
+            function toggleDay(day){
+                if (currentdays.includes(day)){
+                    var index = currentdays.indexOf(day);
+                    if (index !== -1) currentdays.splice(index, 1);
+                } else {
+                    currentdays.push(day);
+                }
+                baseFilter.removeFilterByName("days").addFilter(Filter.filterDays(currentdays), "days").applyFilters().call(Filter.updateRoutesAndGraphs());
+            }
 
         </script>
         <div id="controls">
             <div id="control-panels">
                 <div class="control-panel" id="time-controls">
                     <h2>Time Controls</h2>
+                    <h3>Time of day</h3>
                     <div id="nouislider-wrapper">
                         <div id="time-slider" style="position: relative; margin-left: 10%; width: 80%;"></div>
+                    </div>
+                    <h3>Day</h3>
+                    <div>
+                        <label><input type="checkbox" checked onclick="toggleDay(1)">Monday</label><br>
+                        <label><input type="checkbox" checked onclick="toggleDay(2)">Tuesday</label><br>
+                        <label><input type="checkbox" checked onclick="toggleDay(3)">Wednesday</label><br>
+                        <label><input type="checkbox" checked onclick="toggleDay(4)">Thursday</label><br>
+                        <label><input type="checkbox" checked onclick="toggleDay(5)">Friday</label><br>
+                        <label><input type="checkbox" checked onclick="toggleDay(6)">Saturday</label><br>
+                        <label><input type="checkbox" checked onclick="toggleDay(0)">Sunday</label><br>
                     </div>
                 </div>
                 <div class="control-panel" id="heatmap-controls">
@@ -488,11 +576,12 @@
                         <label><input id="heatmapcheckbox" type="checkbox" checked onchange="toggleHeatmap(this)"> Route Heatmap </label> <br>
                         <label><input id="pointmapstart" type="checkbox" onchange="togglePointHeatmap(this, 0)"> Point Heatmap (Route start)</label> <br>
                         <label><input id="pointmapend" type="checkbox" onchange="togglePointHeatmap(this, 1)"> Point Heatmap (Route end)</label> <br>
+                        <label><input type="checkbox" id="irccheckbox" onclick="toggleIRC(this)"> Individual Routes</label>
                     </div>
                     <div id="route-controls">
                         <div>
                             <h3>Scale</h3>
-                            1 <canvas id="heatscale" width=256 height=1></canvas> <span id="heatmapmax">256</span>
+                            1 <canvas id="heatscale" style="max-width:256px; width:80%";></canvas> <span id="heatmapmax">256</span>
                             <script>
                                 createGradient();
                             </script>
@@ -505,45 +594,37 @@
                             <button onclick="heatMap.resetDefaultOptions()">Reset default</button>
                         </div>
                     </div>
-                    <div id="point-controls" style="display: none";>
+                    <div id="point-controls" style="display: none">
                         <div>
                             <h3>Point Radius</h3>
-                            Narrow <input type="range" min="1" max="30" value="25" onchange="changePointRadius(this)"> Wide
-                        </div>
-                        <div>
-                            <button onclick="heatMap.resetDefaultOptions()">Reset default</button>
+                            Narrow <input type="range" min="1" max="100" value="25" onchange="changePointRadius(this)"> Wide
                         </div>
                     </div>
-                </div>
-                <div class="control-panel" id="individual-routes">
-                    <h2>Individual Routes</h2>
-                    <div>
-                        <label><input type="checkbox" id="irccheckbox" onclick="toggleIRC(this)">Individual Routes</label>
-                    </div>
-                    <div>
-                        <label><input type="radio" checked name="speedcomp" onclick='filterFasterThanCar(0)'>All</label>
-                        <label><input type="radio" name="speedcomp" onclick='filterFasterThanCar(1)'>Faster Than Car</label>
-                        <label><input type="radio" name="speedcomp" onclick='filterFasterThanCar(2)'>Slower Than Car</label>
+                    <div id="indi-controls" style="display: none">
+                        <h3>Legend</h3>
+                        <span style="width:10px; height: 10px; background-color: red; display: inline-block;"></span> <span style="width:10px; height: 10px; background-color: #3388ff; display: inline-block;"></span> Bike </br>
+                        <span style="width:10px; height: 10px; background-color: black; display: inline-block;"></span> Car with same start and end points 
                     </div>
                 </div>
                 <div class="control-panel" id="interactive-map-controls">
                     <h2>Position Filter</h2>
-                    <label><input type="radio" name="map" class="imf-button" onclick="mapFilter(this, Filter.filterStartWithin)"> StartWithin</label> <br>
-                    <label><input type="radio" name="map" class="imf-button" onclick="mapFilter(this, Filter.filterStopsWithin)"> StopWithin</label> <br>
+                    <label><input type="radio" name="map" class="imf-button" onclick="mapFilter(this, Filter.filterStartWithin)"> Starts Within</label> <br>
+                    <label><input type="radio" name="map" class="imf-button" onclick="mapFilter(this, Filter.filterStopsWithin)"> Stops Within</label> <br>
                     <label><input type="radio" name="map" class="imf-button" onclick="mapFilter(this, Filter.filterGoesThrough)"> Goes Through</label> <br>
 
                     <button onclick="imf.removeMapFilter();clearRadioButtons()">Clear</button>
                 </div>
+                <div class="control-panel" id="car-compares">
+                    <h2>Compare with Cars</h2>
+                    <div>
+                        <label><input type="radio" checked name="speedcomp" onclick='filterFasterThanCar(0)'>All</label> <br>
+                        <label><input type="radio" name="speedcomp" onclick='filterFasterThanCar(1)'>Bike faster Than Car</label> <br>
+                        <label><input type="radio" name="speedcomp" onclick='filterFasterThanCar(2)'>Bike slower Than Car</label> <br>
+                    </div>
+                </div>
                 <div class="control-panel" id="data-filter">
                     <h2>Profession Filters</h2>
                     <label><input type="checkbox" onclick='addProfessionFilter(this, "students", "student")'>Only students</label>
-                </div>
-
-                <div class="control-panel" id="graphselector">
-                    <h2>Graphs</h2>
-                    <div class="switcher switcher-one active" data-target="outlet-one">Time plot</div>
-                    <div class="switcher switcher-two" data-target="outlet-two">Bar charts</div>
-                    <div class="switcher switcher-three" data-target="outlet-three">Scatter plots</div>
                 </div>
             </div>
 
@@ -582,6 +663,21 @@
                             <circle class="st1" cx="864" cy="362" r="47"/>
                         </g>
                     </svg>
+                </div>
+                <div class="bar-item" data-target="car-compares" onclick="show(this)">
+                        <svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.0" viewbox="-10 0 290 186.79424" id="svg2">
+                            <metadata id="metadata12">
+                              <rdf:RDF>
+                                <cc:Work rdf:about="">
+                                  <dc:format>image/svg+xml</dc:format>
+                                  <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+                                  <dc:title/>
+                                </cc:Work>
+                              </rdf:RDF>
+                            </metadata>
+                            <defs id="defs4"/>
+                            <path d="M 62.32168,3.2317821 C 50.29537,4.2194521 42.74954,11.615292 38.60294,21.981782 l -19.312504,49.21874 15.562504,-1.03125 16.96874,-43.12499 c 1.55499,-3.62827 5.70551,-7.16916 10.5,-7.6875 44.76701,-5.89367 104.59647,-6.21939 155.71871,0 4.79448,0.51834 8.85126,4.05923 10.40625,7.6875 l 16.96874,43.12499 15.5625,1.03125 -19.3125,-49.21874 C 237.51875,11.615292 229.94613,4.4325121 218.04039,3.2317821 c -44.85164,-4.52341 -105.92629,-4.08921003 -155.71871,0 z m 77.81248,62.9999899 c -35.39855,0.16437 -70.71852,3.32294 -105.84372,7.59375 C 19.625726,75.877802 9.9982958,79.060892 4.7591958,87.606762 -5.4399642,104.24347 0.46216587,130.8255 25.29044,130.8255 l 101.34372,0 27,0 101.34372,0 c 24.82826,0 30.7304,-26.58203 20.53124,-43.218738 -5.2391,-8.54587 -14.86652,-10.60396 -29.53124,-12.65625 -35.1515,-3.84883 -70.43662,-8.88316 -105.84372,-8.71874 z M 31.47794,85.263012 c 10.15941,0 18.37499,8.2156 18.37499,18.374998 0,10.15937 -8.21558,18.46877 -18.37499,18.46874 -10.159384,0 -18.468744,-8.30937 -18.468754,-18.46874 0,-10.159388 8.30937,-18.375048 18.468754,-18.374998 z m 217.40619,0 c 10.15938,-5e-5 18.375,8.21561 18.375,18.374998 -3e-5,10.15937 -8.21562,18.46874 -18.375,18.46874 -10.15941,3e-5 -18.46874,-8.30937 -18.46874,-18.46874 0,-10.159398 8.30933,-18.374998 18.46874,-18.374998 z M 4.7591958,135.04425 c -2.58435,0 -4.68749993,2.0094 -4.68749993,4.59375 l 0,6.1875 c 0,2.58435 2.10314993,4.78124 4.68749993,4.78124 l 8.9999902,0 0,28.96875 c 0,3.96486 3.25384,7.21874 7.21875,7.21874 l 27.468744,0 c 3.96491,0 7.21875,-3.25382 7.21875,-7.21874 l 0,-28.96875 59.62499,0 49.78123,0 59.62499,0 0,28.96875 c 0,3.96492 3.16011,7.21874 7.125,7.21874 l 27.46874,0 c 3.96492,0 7.21875,-3.25388 7.21875,-7.21874 l 0,-28.96875 8.99999,0 c 2.58432,0 4.6875,-2.19689 4.6875,-4.78124 l 0,-6.1875 c 0,-2.58435 -2.10315,-4.59375 -4.6875,-4.59375 l -119.53121,0 -31.6875,0 -119.5312142,0 z" id="path2001" />
+                          </svg>
                 </div>
                 <div class="bar-item" data-target="data-filter" onclick="show(this)">
                     <svg xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="svg4619" inkscape:version="0.91 r13725" sodipodi:docname="suitcase-15.svg" x="0px" y="0px" viewBox="0 0 15 15" xml:space="preserve">

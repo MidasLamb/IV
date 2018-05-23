@@ -45,13 +45,13 @@ function onEachFeature(feature, layer) {
 
 function mouseover(f, e){
     f.properties.leafletPath.bringToFront();
-    f.properties.leafletPath.setStyle({weight: 7});
+    f.properties.leafletPath.setStyle({weight: 7, color:"red"});
     f.carroute.leafletPath.addTo(map);
 }
 
 function mouseout(f, e) {
     f.carroute.leafletPath.removeFrom(map);
-    f.properties.leafletPath.setStyle({weight: 3});
+    f.properties.leafletPath.setStyle({weight: 3, color:"#3388ff"});
 }
 
 function parseFietsRoutes() {
@@ -62,10 +62,10 @@ function parseFietsRoutes() {
                 weight: 3
             }
             var carslower = {
-                className: "fiets-route auto-slower hide"
+                className: "fiets-route hide"
             }
             var carfaster = {
-                className: "fiets-route auto-faster hide"
+                className: "fiets-route hide"
             }
 
             data.features.forEach(element => {

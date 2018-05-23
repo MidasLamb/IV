@@ -271,6 +271,12 @@ class Filter {
             return !d.properties.fasterThanCar;
         }
     }
+
+    static filterDays(days){
+        return (d) => {
+            return days.includes(d.properties.STARTTIMEDATE.getDay());
+        }
+    }
     
 }
 

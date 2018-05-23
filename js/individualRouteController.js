@@ -19,7 +19,6 @@ class IndividualRouteController {
             return;
         }
         this.baseFilter.eachStartData((d) => {
-            console.log("hihi");
             var path = d.properties.leafletPath._path;
             path.classList.add("hide");
         });
