@@ -250,8 +250,27 @@
                 addTimeFilter();
             }
 
-            // initialize statistics
-            initializeBarChart("age");
+            let outlets = document.querySelectorAll('.graphs-outlet-line canvas');
+            for (i =0; i < outlets.length; i++){
+                var variable = outlets[i].id.split("_")[0];
+                var curout = outlets[i].getContext('2d');
+                initializeLineChart(curout,variable);
+            }
+
+            outlets = document.querySelectorAll('.graphs-outlet-plot canvas');
+            for (i =0; i < outlets.length; i++){
+                var variable = outlets[i].id.split("_")[0];
+                var curout = outlets[i].getContext('2d');
+                initializeBarChart(curout,variable);
+            }
+
+            outlets = document.querySelectorAll('.graphs-outlet-scatter canvas');
+            for (i =0; i < outlets.length; i++){
+                var variable1 = outlets[i].id.split("_")[0];
+                var variable2 = outlets[i].id.split("_")[1];
+                var curout = outlets[i].getContext('2d');
+                initializeScatterChart(curout,variable1,variable2);
+            }
         }
     </script>
 
@@ -588,23 +607,25 @@
                 <div class="switcher switcher-one active" data-target="outlet-one">Time plot</div>
                 <div class="switcher switcher-two" data-target="outlet-two">Bar charts</div>
                 <div class="switcher switcher-three" data-target="outlet-three">Scatter plots</div>
-                <div class="graphs-outlet show" id="outlet-one">
+                <div class="graphs-outlet-line active" id="outlet-one">
                     <div> 
                         <div class="timeplot-container" style="position: relative; height: 100%; width: 100%; max-height: 100%; max-width: 100%;">
-                            <canvas id="timeplot"></canvas>
+                            <canvas id="time_plot"></canvas>
                         </div>
                     </div>
 
                 </div>
-                <div class="graphs-outlet" id="outlet-two">
-                    <div class="subplot-1" id="plot-bar-1"></div>
-                    <div class="subplot-2" id="plot-bar-2"></div>
-                    <div class="subplot-3" id="plot-bar-3"></div>
+                <div class="graphs-outlet-plot" id="outlet-two" style="display:none">
+                    <div class="subplot-1" id="plot-bar-1" ><canvas id="age_bar"></canvas></div>
+                    <div class="subplot-2" id="plot-bar-2"><canvas id="speed_bar"></canvas></div>
+                    <div class="subplot-3" id="plot-bar-3"><canvas id="distance_bar"></canvas></div>
+
                 </div>
-                <div class="graphs-outlet" id="outlet-three">
-                    <div class="subplot-1" id="plot-scatter-1"></div>
-                    <div class="subplot-2" id="plot-scatter-2"></div>
-                    <div class="subplot-3" id="plot-scatter-3"></div>
+                <div class="graphs-outlet-scatter" id="outlet-three" style="display:none">
+                    <div class="subplot-1" id="plot-scatter-1"><canvas id="age_speed_plot"></canvas></div>
+                    <div class="subplot-2" id="plot-scatter-2"><canvas id="speed_distance_plot"></canvas></div>
+                    <div class="subplot-3" id="plot-scatter-3"><canvas id="age_distance_plot"></canvas></div>
+
                 </div>
             </div>
  <script>
@@ -695,15 +716,70 @@ var chartData = {
     "speed": makeSpeed(10,30,5, "Average speed (km/h)"),
     "distance": makeDistance(0,35,5, "Distance travelled (km)")
 }
+var charts = {};
 
-var ctx = document.getElementById('timeplot').getContext('2d');
-
-let chart;
-function initializeBarChart(variable) {
+function initializeLineChart(ctx, variable) {
     var varData = chartData[variable];
     console.log(varData["func"]);
     var datasts = getData(plotData(varData["func"]),variable)
-    window.chart = new Chart(ctx, {
+    window.charts[variable] = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'line',
+        // Configuration options go here
+        options: {
+            scales: {
+                xAxes: [{
+                    stacked: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: varData["title"]
+                    }
+                }],
+                yAxes: [{
+                    stacked: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: "Amount"
+                    }
+                }]
+            },
+            legend: {
+                display: false
+            },
+            layout: {
+                padding: {
+                 top: 0,
+                 right: 0,
+                 bottom: 5,
+                 left: 0
+                }
+            },
+            maintainAspectRatio: false,
+            responsive: true
+        },
+
+        // The data for our dataset
+        data: {
+            labels: labels2(varData["min"],varData["max"],varData["step"],varData["missing"]),
+            datasets: [{
+                backgroundColor: 'rgb(168, 45, 53,0.4)',
+                borderColor: 'rgb(168, 45, 53)',
+                data: datasts[0]
+            },
+            {
+                backgroundColor: 'rgb(68, 142, 125,0.4)',
+                borderColor: 'rgb(68, 142, 125)',
+                data: datasts[1]
+            }]
+        }
+    });
+}
+
+function initializeBarChart(ctx, variable) {
+    var varData = chartData[variable];
+    console.log(varData["func"]);
+    var datasts = getData(plotData(varData["func"]),variable)
+    window.charts[variable] = new Chart(ctx, {
         // The type of chart we want to create
         type: 'bar',
         // Configuration options go here
@@ -756,7 +832,7 @@ function initializeBarChart(variable) {
     });
 }
 
-function initializeScatterChart(variable1,variable2) {
+function initializeScatterChart(ctx, variable1,variable2) {
     var varData1 = chartData[variable1];
     var varData2 = chartData[variable2];
     var datasts1 = plotData(varData1["data"],variable1)
@@ -764,7 +840,7 @@ function initializeScatterChart(variable1,variable2) {
     var datasts2 = plotData(varData2["data"],variable2)
     var scatterdataslower = createScatterData(datasts1[0],datasts2[0]);
     var scatterdatafaster = createScatterData(datasts1[1],datasts2[1]);
-    window.chart = new Chart(ctx, {
+    window.charts[variable1.concat(variable2)] = new Chart(ctx, {
         // The type of chart we want to create
         type: 'scatter',
         // Configuration options go here
