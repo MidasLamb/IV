@@ -3,7 +3,7 @@ var participantdata = [];
 var carroutedata = [];
 svg = d3.select("body").append("svg").attr("display", "none");
 
-d3.csv("/data/deelnemers_gegevens.csv", function(data){
+d3.csv("data/deelnemers_gegevens.csv", function(data){
     data.forEach((e) => {
         participantdata[e.TripID] = e;
     });
@@ -11,7 +11,7 @@ d3.csv("/data/deelnemers_gegevens.csv", function(data){
 });
 
 function parseCarroutes(){
-    d3.json("/data/carroutes.json", function(data) {
+    d3.json("data/carroutes.json", function(data) {
         var routes = data.routes;
         routes.forEach((route) => {
             route.latlng = route.shape.map((e) => {
@@ -60,7 +60,7 @@ function mouseout(f, e) {
 
 
 function parseFietsRoutes() {
-    d3.json("/data/fiets_routes_CC.geojson", function(data){
+    d3.json("data/fiets_routes_CC.geojson", function(data){
             var car = {
                 className: "car-route",
                 interactive: false,
